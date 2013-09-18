@@ -44,7 +44,7 @@ class CourseSpider(BaseSpider):
         assert len(h2) == 1
         h2_str = h2[0].strip()
         self.log('Extracted course code and title: ' + h2_str)
-        regex = re.compile('^([0-9A-Z]{5}) ([\w\s]*)')
+        regex = re.compile('^([0-9A-Z]{5}) (.*)')
         match = regex.match(h2_str)
         code_en_name = match.groups()
         assert len(code_en_name) == 2
