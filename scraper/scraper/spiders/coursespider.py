@@ -6,6 +6,31 @@ from urlparse import urljoin
 import re
 from scraper.items import CourseItem
 
+#TODO: need to move out everything except the class itself
+
+class PageStructureException(Exception):
+    pass
+
+
+def select_single(selector, xpath, expected = None):
+    return select(selector, xpath, expected = 1)[0]
+
+def select(selector, xpath, expected = None):
+    result = selector.select(xpath)
+    if expected is not None and len(result) != expected:
+        msg = "Expected {0} result(s), got {1}. XPath expression: {2} Selector content: {3}".format(expected, len(result), xpath, selector.extract())
+        raise PageStructureException(msg)
+    return result
+
+def check_len(list, item_count):
+    if len(list) <> item_count:
+        raise PageStructureException("Expected {0} element(s), got: {1}").format(len(list))
+
+def single_elem(list):
+    check_len(list, 1)
+    return list[0]
+
+
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
     allowed_domains = ['dtu.dk']
@@ -20,7 +45,6 @@ class CourseSpider(BaseSpider):
             self.log("Extracted department URL: " + department_url)
             yield Request(department_url, callback = self.parse_department)
 
-
     def parse_department(self, response):
         base_url = get_base_url(response)
         hxs = HtmlXPathSelector(response)
@@ -32,27 +56,50 @@ class CourseSpider(BaseSpider):
 
     def extract_course_url(self, onclick, base_url):
         regex = "(?:document.location=')(.*)(?:')"
-        course_relpath = onclick.re(regex)
-        assert len(course_relpath) == 1
-        return urljoin(base_url, course_relpath[0])
+        course_relpath = single_elem(onclick.re(regex))
+        return urljoin(base_url, course_relpath)
 
     def parse_course(self, response):
         hxs = HtmlXPathSelector(response)
-        main_div = hxs.select('//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
+        main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
+        course = CourseItem()
+        self.process_heading(main_div, course)
+        self.process_first_table(main_div, course)
+        return course
 
-        h2 = main_div.select('h2/text()').extract()
-        assert len(h2) == 1
-        h2_str = h2[0].strip()
-        self.log('Extracted course code and title: ' + h2_str)
+    def process_heading(self, main_div, course):
+        h2 = select_single(main_div, 'h2/text()').extract().strip()
+        self.log('Extracted course code and title: ' + h2)
         regex = re.compile('^([0-9A-Z]{5}) (.*)')
-        match = regex.match(h2_str)
+        match = regex.match(h2)
         code_en_name = match.groups()
-        assert len(code_en_name) == 2
+        check_len(code_en_name, 2)
 
-        item = CourseItem()
-        item['code'] = code_en_name[0]
-        item['title_en'] = code_en_name[1]
+        course['code'] = code_en_name[0]
+        course['title_en'] = code_en_name[1]
 
-        #params_table = main_div.select('table[1]')
-        #params_table
-        return item
+    def process_first_table(self, main_div, course):
+
+        def process_values(values):
+            return values[0].strip()
+
+        def process_table_row(table, row_no, expected_heading = None, values_handler = process_values):
+            xpath = 'tr[{}]'.format(row_no)
+            line = select_single(table, xpath)
+            line_header = select_single(line, 'td[1]/h3/text()').extract().strip()
+            if expected_heading:
+                assert line_header == expected_heading
+            line_values = line.select('td[2]/descendant::text()').extract()
+            result = values_handler(line_values)
+            self.log("Extracted '{}' value: {}".format(expected_heading, result))
+            return result
+
+        table = main_div.select('table[1]')
+
+        course['title_da'] = process_table_row(table, 2, "Danish title:")
+
+        course['language'] = process_table_row(table, 3, "Language:")
+
+        course['ects_credits'] = process_table_row(table, 4, "Point( ECTS )")
+
+        course['course_type'] = process_table_row(table, 5, "Course type:")
