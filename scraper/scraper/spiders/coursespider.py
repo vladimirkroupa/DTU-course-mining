@@ -40,7 +40,8 @@ class CourseSpider(BaseSpider):
         hxs = HtmlXPathSelector(response)
         base_url = get_base_url(response)
         self.log("Base URL: " + base_url)
-        for rel_path in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]/td/lu/li/a/@href').extract():
+        for rel_path in hxs.select('(//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]/td/lu/li/a/@href)[1]').extract():
+        #for rel_path in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]/td/lu/li/a/@href').extract():
             department_url = urljoin(base_url, rel_path)
             self.log("Extracted department URL: " + department_url)
             yield Request(department_url, callback = self.parse_department)
@@ -79,31 +80,33 @@ class CourseSpider(BaseSpider):
         course['code'] = code_en_name[0]
         course['title_en'] = code_en_name[1]
 
-    def process_table_row(self, table, row_no, expected_heading = None, textnodes_handler = lambda vals : vals[0].strip()):
-        xpath = 'tr[{}]'.format(row_no)
-        line = select_single(table, xpath)
-        line_header = select_single(line, 'td[1]/h3/text()').extract().strip()
-        if expected_heading:
-            assert line_header == expected_heading
-        line_values = line.select('td[2]/descendant::text()').extract()
-        result = textnodes_handler(line_values)
-        self.log("Extracted '{}' value: {}".format(expected_heading, result))
+    def process_table_row(self, table, heading, text_nodes_handler = lambda vals : vals[0].strip(), postprocess = None):
+        table_row = select_single(table, 'tr[contains(td/h3/text(), "{0}")]'.format(heading))
+        line_values = table_row.select('td[2]/descendant::text()').extract()
+        result = text_nodes_handler(line_values)
+        if postprocess:
+            result = postprocess(result)
+        self.log("Extracted '{}' value: '{}'".format(heading, result))
         return result
 
     def process_first_table(self, main_div, course):
 
         table = main_div.select('table[1]')
 
-        course['title_da'] = self.process_table_row(table, 2, "Danish title:")
+        course['title_da'] = self.process_table_row(table, "Danish title:")
 
-        course['language'] = self.process_table_row(table, 3, "Language:")
+        course['language'] = self.process_table_row(table, "Language:")
 
-        course['ects_credits'] = self.process_table_row(table, 4, "Point( ECTS )")
+        course['ects_credits'] = self.process_table_row(table, "Point( ECTS )")
 
-        course['course_type'] = self.process_table_row(table, 5, "Course type:")
+        course['course_type'] = self.process_table_row(table, "Course type:")
 
     def process_second_table(self, main_div, course):
 
+        def parse_evaluation_type(eval_type_string):
+            return eval_type_string.split(',')[0].strip()
+
         table = main_div.select('table[2]')
 
-        course['evaluation_type'] = self.process_table_row(table, 10, "Evaluation:")
+        eval_type = self.process_table_row(table, "Evaluation:", postprocess = parse_evaluation_type)
+        course['evaluation_type'] = eval_type
