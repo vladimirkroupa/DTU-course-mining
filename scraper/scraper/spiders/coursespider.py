@@ -65,6 +65,7 @@ class CourseSpider(BaseSpider):
         course = CourseItem()
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
+        self.process_second_table(main_div, course)
         return course
 
     def process_heading(self, main_div, course):
@@ -78,14 +79,14 @@ class CourseSpider(BaseSpider):
         course['code'] = code_en_name[0]
         course['title_en'] = code_en_name[1]
 
-    def process_table_row(self, table, row_no, expected_heading = None, values_handler = lambda vals : vals[0].strip()):
+    def process_table_row(self, table, row_no, expected_heading = None, textnodes_handler = lambda vals : vals[0].strip()):
         xpath = 'tr[{}]'.format(row_no)
         line = select_single(table, xpath)
         line_header = select_single(line, 'td[1]/h3/text()').extract().strip()
         if expected_heading:
             assert line_header == expected_heading
         line_values = line.select('td[2]/descendant::text()').extract()
-        result = values_handler(line_values)
+        result = textnodes_handler(line_values)
         self.log("Extracted '{}' value: {}".format(expected_heading, result))
         return result
 
@@ -102,5 +103,7 @@ class CourseSpider(BaseSpider):
         course['course_type'] = self.process_table_row(table, 5, "Course type:")
 
     def process_second_table(self, main_div, course):
+
         table = main_div.select('table[2]')
-        pass
+
+        course['evaluation_type'] = self.process_table_row(table, 10, "Evaluation:")
