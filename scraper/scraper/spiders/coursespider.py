@@ -23,7 +23,7 @@ def select(selector, xpath, expected = None):
     return result
 
 def check_len(list, item_count):
-    if len(list) <> item_count:
+    if len(list) != item_count:
         raise PageStructureException("Expected {0} element(s), got: {1}").format(len(list))
 
 def single_elem(list):
@@ -78,28 +78,29 @@ class CourseSpider(BaseSpider):
         course['code'] = code_en_name[0]
         course['title_en'] = code_en_name[1]
 
+    def process_table_row(self, table, row_no, expected_heading = None, values_handler = lambda vals : vals[0].strip()):
+        xpath = 'tr[{}]'.format(row_no)
+        line = select_single(table, xpath)
+        line_header = select_single(line, 'td[1]/h3/text()').extract().strip()
+        if expected_heading:
+            assert line_header == expected_heading
+        line_values = line.select('td[2]/descendant::text()').extract()
+        result = values_handler(line_values)
+        self.log("Extracted '{}' value: {}".format(expected_heading, result))
+        return result
+
     def process_first_table(self, main_div, course):
-
-        def process_values(values):
-            return values[0].strip()
-
-        def process_table_row(table, row_no, expected_heading = None, values_handler = process_values):
-            xpath = 'tr[{}]'.format(row_no)
-            line = select_single(table, xpath)
-            line_header = select_single(line, 'td[1]/h3/text()').extract().strip()
-            if expected_heading:
-                assert line_header == expected_heading
-            line_values = line.select('td[2]/descendant::text()').extract()
-            result = values_handler(line_values)
-            self.log("Extracted '{}' value: {}".format(expected_heading, result))
-            return result
 
         table = main_div.select('table[1]')
 
-        course['title_da'] = process_table_row(table, 2, "Danish title:")
+        course['title_da'] = self.process_table_row(table, 2, "Danish title:")
 
-        course['language'] = process_table_row(table, 3, "Language:")
+        course['language'] = self.process_table_row(table, 3, "Language:")
 
-        course['ects_credits'] = process_table_row(table, 4, "Point( ECTS )")
+        course['ects_credits'] = self.process_table_row(table, 4, "Point( ECTS )")
 
-        course['course_type'] = process_table_row(table, 5, "Course type:")
+        course['course_type'] = self.process_table_row(table, 5, "Course type:")
+
+    def process_second_table(self, main_div, course):
+        table = main_div.select('table[2]')
+        pass
