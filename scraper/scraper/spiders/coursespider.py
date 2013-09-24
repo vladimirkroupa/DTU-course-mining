@@ -5,6 +5,8 @@ from scrapy.utils.response import get_base_url
 from urlparse import urljoin
 import re
 from scraper.items import CourseItem
+from scraper.items import CourseRun
+import logging
 
 #TODO: need to move out everything except the class itself
 
@@ -12,7 +14,7 @@ class PageStructureException(Exception):
     pass
 
 
-def select_single(selector, xpath, expected = None):
+def select_single(selector, xpath):
     return select(selector, xpath, expected = 1)[0]
 
 def select(selector, xpath, expected = None):
@@ -67,7 +69,14 @@ class CourseSpider(BaseSpider):
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)
-        return course
+        eval_url = self.create_course_eval_request(response.url)
+        yield Request(eval_url, callback = self.parse_page_with_info_link)
+        yield course
+
+    def create_course_eval_request(self, course_url):
+        tokens = course_url.split("/")
+        del tokens[-2] # delete second last
+        return "/".join(tokens)
 
     def process_heading(self, main_div, course):
         h2 = select_single(main_div, 'h2/text()').extract().strip()
@@ -107,6 +116,46 @@ class CourseSpider(BaseSpider):
             return eval_type_string.split(',')[0].strip()
 
         table = main_div.select('table[2]')
-
         eval_type = self.process_table_row(table, "Evaluation:", postprocess = parse_evaluation_type)
         course['evaluation_type'] = eval_type
+
+    def parse_page_with_info_link(self, response):
+        hxs = HtmlXPathSelector(response)
+        base_url = get_base_url(response)
+        href = select_single(hxs, '//tr[@class = "tabNavigation"]//a[text() = "Information"]/@href').extract()
+        url = urljoin(base_url, href)
+        return Request(url, callback = self.parse_grade_overview_page)
+
+    def parse_grade_overview_page(self, response):
+        hxs = HtmlXPathSelector(response)
+        grades_table = select_single(hxs, '//td[@class = "ContentMain"]//table[contains(tr/td/b/text(), "Grades")]')
+        grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
+        for link in grade_links:
+            yield Request(link, callback = self.parse_grade_dist_page)
+
+    def parse_grade_dist_page(self, response):
+
+        def process_grade_table_line(header, value, course_run):
+            item_fields = {'12' : 'grade_12',
+                           '10': 'grade_10',
+                           '7': 'grade_7',
+                           '4': 'grade_4',
+                           '02': 'grade_02',
+                           '00': 'grade_00',
+                           '-3': 'grade_minus_3',
+                           'Syg': 'sick'}
+
+            if header not in item_fields:
+                self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
+            field = item_fields[header]
+            course_run[field] = value
+            self.log('Extracted occurrence of grade {0}: {1}'.format(header, value))
+
+        course_run = CourseRun()
+        hxs = HtmlXPathSelector(response)
+        grades_table = select_single(hxs, '//table[3]')
+        for row in grades_table.select('tr')[1:]:
+            header = select_single(row, 'td[1]/text()').extract().strip()
+            value = select_single(row, 'td[2]/text()').extract().strip()
+            process_grade_table_line(header, value, course_run)
+            yield course_run
