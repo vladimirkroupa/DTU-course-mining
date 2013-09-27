@@ -71,7 +71,6 @@ class CourseSpider(BaseSpider):
         self.process_second_table(main_div, course)
         eval_url = self.create_course_eval_request(response.url)
         yield Request(eval_url, callback = self.parse_page_with_info_link)
-        yield course
 
     def create_course_eval_request(self, course_url):
         tokens = course_url.split("/")
@@ -90,8 +89,11 @@ class CourseSpider(BaseSpider):
         course['title_en'] = code_en_name[1]
 
     def process_table_row(self, table, heading, text_nodes_handler = lambda vals : vals[0].strip(), postprocess = None):
-        table_row = select_single(table, 'tr[contains(td/h3/text(), "{0}")]'.format(heading))
+        xpath = 'tr[contains(td/h3/text(), "{}")]'.format(heading)
+        table_row = select_single(table, xpath)
+        # finds all text values in the column
         line_values = table_row.select('td[2]/descendant::text()').extract()
+        #
         result = text_nodes_handler(line_values)
         if postprocess:
             result = postprocess(result)
@@ -144,6 +146,7 @@ class CourseSpider(BaseSpider):
                            '00': 'grade_00',
                            '-3': 'grade_minus_3',
                            'Syg': 'sick'}
+                           #'Ej mødt': 'not_shown'}
 
             if header not in item_fields:
                 self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
