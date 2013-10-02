@@ -141,6 +141,18 @@ class CourseSpider(BaseSpider):
             yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links), 'grade_page_no' : page_no})
 
     def parse_grade_dist_page(self, response):
+        course = response.request.meta['course']
+        hxs = HtmlXPathSelector(response)
+        grades_table = select_single(hxs, '//table[3]')
+        course_run = self.process_grade_table(grades_table)
+        course['course_runs'].append(course_run)
+
+        total_pages = response.meta['total_grade_pages']
+        page_no = response.meta['grade_page_no']
+        if page_no == total_pages:
+            return course
+
+    def process_grade_table(self, grades_table):
 
         def process_grade_table_line(header, value, course_run):
             item_fields = {'12' : 'grade_12',
@@ -159,17 +171,9 @@ class CourseSpider(BaseSpider):
             course_run[field] = value
             self.log('Extracted occurrence of grade {}: {}'.format(header, value))
 
-        course = response.request.meta['course']
         course_run = CourseRun()
-        hxs = HtmlXPathSelector(response)
-        grades_table = select_single(hxs, '//table[3]')
         for row in grades_table.select('tr')[1:]:
             header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
             value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
             process_grade_table_line(header, value, course_run)
-        course['course_runs'].append(course_run)
-
-        total_pages = response.meta['total_grade_pages']
-        page_no = response.meta['grade_page_no']
-        if page_no == total_pages:
-            return course
+        return course_run
