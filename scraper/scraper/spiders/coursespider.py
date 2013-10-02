@@ -22,13 +22,13 @@ def select_single(selector, xpath):
 def select(selector, xpath, expected = None):
     result = selector.select(xpath)
     if expected is not None and len(result) != expected:
-        msg = "Expected {0} result(s), got {1}. XPath expression: {2} Selector content: {3}".format(expected, len(result), xpath, selector.extract())
+        msg = "Expected {0} result(s), got {1}. XPath expression: {2} Selector content: {3}".format(expected, len(result), xpath, selector.extract().encode('utf-8'))
         raise PageStructureException(msg)
     return result
 
 def check_len(list, item_count):
     if len(list) != item_count:
-        raise PageStructureException("Expected {0} element(s), got: {1}").format(len(list))
+        raise PageStructureException("Expected {0} element(s), got: {1}".format(item_count, len(list)))
 
 def single_elem(list):
     check_len(list, 1)
@@ -72,6 +72,12 @@ class CourseSpider(BaseSpider):
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)
         eval_url = self.create_course_eval_request(response.url)
+
+        # TODO: move to Course class
+        if course['evaluation_type'] == 'pass / not pass':
+            self.log('Skipping pass/fail evaluation type course {}'.format(course['title_en']))
+            return
+
         yield Request(eval_url, callback = self.parse_page_with_info_link, meta = {'course' : course})
 
     def create_course_eval_request(self, course_url):
@@ -81,14 +87,15 @@ class CourseSpider(BaseSpider):
 
     def process_heading(self, main_div, course):
         h2 = select_single(main_div, 'h2/text()').extract().strip()
-        self.log('Extracted course code and title: ' + h2)
+        self.log('Going to parse course code and title: ' + h2)
         regex = re.compile('^([0-9A-Z]{5}) (.*)')
         match = regex.match(h2)
-        code_en_name = match.groups()
-        check_len(code_en_name, 2)
+        groups = match.groups()
+        check_len(groups, 2)
+        code, en_name = groups
 
-        course['code'] = code_en_name[0]
-        course['title_en'] = code_en_name[1]
+        course['code'] = code
+        course['title_en'] = en_name
 
     def process_table_row(self, table, heading, text_nodes_handler = lambda vals : vals[0].strip(), postprocess = None):
         xpath = 'tr[contains(td/h3/text(), "{}")]'.format(heading)
@@ -143,8 +150,13 @@ class CourseSpider(BaseSpider):
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
         hxs = HtmlXPathSelector(response)
-        grades_table = select_single(hxs, '//table[3]')
-        course_run = self.process_grade_table(grades_table)
+        grades_table = select_single(hxs, '//table[2]')
+        h2_value = select_single(hxs, '//form[@id="karsumForm"]/h2/text()').extract().strip().encode('utf-8')
+
+        course_run = CourseRun()
+        self.process_grade_table(grades_table, course_run)
+        self.process_course_run_heading(h2_value, course_run)
+
         course['course_runs'].append(course_run)
 
         total_pages = response.meta['total_grade_pages']
@@ -152,7 +164,16 @@ class CourseSpider(BaseSpider):
         if page_no == total_pages:
             return course
 
-    def process_grade_table(self, grades_table):
+    def process_grade_table(self, grades_table, course_run):
+
+        def has_13_grades(grades_table):
+            tables = grades_table.select('tr/td/table')
+            return len(tables) == 2
+
+        def not_enough_grades(grades_table):
+            xpath = 'tr/td/text()[contains(., "Fordelingen vises ikke da tre eller")]'
+            result = grades_table.select(xpath)
+            return len(result) == 1
 
         def process_grade_table_line(header, value, course_run):
             item_fields = {'12' : 'grade_12',
@@ -171,9 +192,24 @@ class CourseSpider(BaseSpider):
             course_run[field] = value
             self.log('Extracted occurrence of grade {}: {}'.format(header, value))
 
-        course_run = CourseRun()
-        for row in grades_table.select('tr')[1:]:
+        if not_enough_grades(grades_table) or has_13_grades(grades_table):
+            return
+
+        inner_table = select_single(grades_table, 'tr/td/table')
+        for row in inner_table.select('tr')[1:]:
             header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
             value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
             process_grade_table_line(header, value, course_run)
-        return course_run
+
+    def process_course_run_heading(self, heading_text, course_run):
+        self.log('Going to parse course run heading: [{}]'.format(heading_text))
+        regex = re.compile("""(?:.*)(Sommer|Vinter)\s(\d\d\d\d)$""")
+        match = regex.match(heading_text)
+        groups = match.groups()
+        check_len(groups, 2)
+        semester, year = groups
+        course_run['year'] = year
+        course_run['semester'] = semester
+
+    def process_course_run_info(self, grade):
+        pass
