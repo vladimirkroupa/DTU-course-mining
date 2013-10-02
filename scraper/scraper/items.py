@@ -11,7 +11,7 @@ class CourseItem(Item):
     evaluation_type = Field()
     ects_credits = Field()
     course_type = Field()
-    course_runs = {}
+    course_runs = Field()
 
 class CourseRun(Item):
     year = Field()

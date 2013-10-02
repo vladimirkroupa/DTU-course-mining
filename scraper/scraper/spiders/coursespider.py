@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from scrapy.selector import HtmlXPathSelector
 from scrapy.spider import BaseSpider
 from scrapy.http import Request
@@ -65,12 +67,12 @@ class CourseSpider(BaseSpider):
     def parse_course(self, response):
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
-        course = CourseItem()
+        course = CourseItem(course_runs = [])
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)
         eval_url = self.create_course_eval_request(response.url)
-        yield Request(eval_url, callback = self.parse_page_with_info_link)
+        yield Request(eval_url, callback = self.parse_page_with_info_link, meta = {'course' : course})
 
     def create_course_eval_request(self, course_url):
         tokens = course_url.split("/")
@@ -92,8 +94,7 @@ class CourseSpider(BaseSpider):
         xpath = 'tr[contains(td/h3/text(), "{}")]'.format(heading)
         table_row = select_single(table, xpath)
         # finds all text values in the column
-        line_values = table_row.select('td[2]/descendant::text()').extract()
-        #
+        line_values = [s.encode('utf-8') for s in table_row.select('td[2]/descendant::text()').extract()]
         result = text_nodes_handler(line_values)
         if postprocess:
             result = postprocess(result)
@@ -126,14 +127,18 @@ class CourseSpider(BaseSpider):
         base_url = get_base_url(response)
         href = select_single(hxs, '//tr[@class = "tabNavigation"]//a[text() = "Information"]/@href').extract()
         url = urljoin(base_url, href)
-        return Request(url, callback = self.parse_grade_overview_page)
+        course = response.meta['course']
+        return Request(url, callback = self.parse_grade_overview_page, meta = {'course' : course})
 
     def parse_grade_overview_page(self, response):
         hxs = HtmlXPathSelector(response)
         grades_table = select_single(hxs, '//td[@class = "ContentMain"]//table[contains(tr/td/b/text(), "Grades")]')
         grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
+        page_no = 0
         for link in grade_links:
-            yield Request(link, callback = self.parse_grade_dist_page)
+            page_no += 1
+            course = response.meta['course']
+            yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links), 'grade_page_no' : page_no})
 
     def parse_grade_dist_page(self, response):
 
@@ -145,20 +150,26 @@ class CourseSpider(BaseSpider):
                            '02': 'grade_02',
                            '00': 'grade_00',
                            '-3': 'grade_minus_3',
-                           'Syg': 'sick'}
-                           #'Ej mødt': 'not_shown'}
+                           'Syg': 'sick',
+                           'Ej mødt': 'not_shown'}
 
             if header not in item_fields:
                 self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
             field = item_fields[header]
             course_run[field] = value
-            self.log('Extracted occurrence of grade {0}: {1}'.format(header, value))
+            self.log('Extracted occurrence of grade {}: {}'.format(header, value))
 
+        course = response.request.meta['course']
         course_run = CourseRun()
         hxs = HtmlXPathSelector(response)
         grades_table = select_single(hxs, '//table[3]')
         for row in grades_table.select('tr')[1:]:
-            header = select_single(row, 'td[1]/text()').extract().strip()
-            value = select_single(row, 'td[2]/text()').extract().strip()
+            header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
+            value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
             process_grade_table_line(header, value, course_run)
-            yield course_run
+        course['course_runs'].append(course_run)
+
+        total_pages = response.meta['total_grade_pages']
+        page_no = response.meta['grade_page_no']
+        if page_no == total_pages:
+            return course
