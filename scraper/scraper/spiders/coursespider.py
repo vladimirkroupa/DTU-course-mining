@@ -9,6 +9,7 @@ import re
 from scraper.items import CourseItem
 from scraper.items import CourseRun
 import logging
+from collections import defaultdict
 
 #TODO: need to move out everything except the class itself
 
@@ -38,7 +39,9 @@ def single_elem(list):
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
     allowed_domains = ['dtu.dk']
-    start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx']
+    #start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx']
+    start_urls = ['http://www.kurser.dtu.dk/2013-2014/27002.aspx?menulanguage=en-GB']
+    course_grades_parsed = defaultdict(int)
 
     def parse(self, response):
         hxs = HtmlXPathSelector(response)
@@ -145,7 +148,7 @@ class CourseSpider(BaseSpider):
         for link in grade_links:
             page_no += 1
             course = response.meta['course']
-            yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links), 'grade_page_no' : page_no})
+            yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links)})
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
@@ -157,11 +160,16 @@ class CourseSpider(BaseSpider):
         self.process_grade_table(grades_table, course_run)
         self.process_course_run_heading(h2_value, course_run)
 
+        self.log(course_run)
         course['course_runs'].append(course_run)
 
+        course_code = course['code']
+        self.course_grades_parsed[course_code] += 1
+
+        pages_parsed = self.course_grades_parsed[course_code]
         total_pages = response.meta['total_grade_pages']
-        page_no = response.meta['grade_page_no']
-        if page_no == total_pages:
+        self.log("Scraped {} grade pages of {} total for course {}.".format(pages_parsed, total_pages, course_code))
+        if pages_parsed == total_pages:
             return course
 
     def process_grade_table(self, grades_table, course_run):
@@ -190,9 +198,14 @@ class CourseSpider(BaseSpider):
                 self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
             field = item_fields[header]
             course_run[field] = value
-            self.log('Extracted occurrence of grade {}: {}'.format(header, value))
+            #self.log('Extracted occurrence of grade {}: {}'.format(header, value))
 
-        if not_enough_grades(grades_table) or has_13_grades(grades_table):
+        if not_enough_grades(grades_table):
+            self.log('Encountered course run with no grade distribution.')
+            return
+
+        if has_13_grades(grades_table):
+            self.log('Encountered course run with 13 grade distribution.')
             return
 
         inner_table = select_single(grades_table, 'tr/td/table')
