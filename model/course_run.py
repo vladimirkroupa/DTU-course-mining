@@ -22,7 +22,7 @@ class CourseRun:
         self.students_passed = students_passed
         self.not_shown = not_shown
         self.sick = sick
-        self.grade_scale = init_grade_scale(self, grade_scale)
+        init_grade_scale(self, grade_scale)
 
     def exam_average(self):
         pass
