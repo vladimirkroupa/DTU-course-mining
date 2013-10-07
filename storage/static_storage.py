@@ -6,9 +6,12 @@ class StaticStorage(Storage):
     """Simple implementation using the static courses.json file created by Scrapy.
     """
 
+    def __init__(self, file_to_use = '../scraper/courses.json'):
+        self.file = file_to_use
+
     def read_course_base(self):
         decoder = JSONDecoder()
-        json_file = open('../scraper/courses.json')
+        json_file = open(self.file)
         json_data = json.load(json_file)
         return decoder.decode_courses(json_data)
 
