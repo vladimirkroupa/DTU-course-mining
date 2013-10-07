@@ -1,3 +1,5 @@
+import operator
+
 class CourseRun:
 
     def __init__(self, year, semester, students_registered, students_attended, students_passed, not_shown, sick, grade_scale):
@@ -23,4 +25,14 @@ class CourseRun:
         return self.__repr__()
 
     def __eq__(self, other):
-        assert False, '__eq__ implementation required!'
+        comparisons = [
+            self.year == other.year,
+            self.semester == other.semester,
+            self.students_registered == other.students_registered,
+            self.students_attended == other.students_attended,
+            self.students_passed == other.students_passed,
+            self.not_shown == other.not_shown,
+            self.sick == other.sick,
+            self.grade_scale == other.grade_scale
+        ]
+        return reduce(operator.and_, comparisons)
