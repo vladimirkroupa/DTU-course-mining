@@ -28,6 +28,14 @@ class Course:
         else:
             pass
 
+    def __repr__(self):
+        templ = "{0}: {2} ({3}), taught in {1}, evaluation: {4}, ects credits: {5}, course type: {6}, course runs: {7}"
+        return templ.format(self.code, self.language, self.title_en, self.title_da, self.evaluation_type,
+                            self.ects_credits, self.course_type, self.course_runs)
+
+    def __str__(self):
+        return self.__repr__()
+
     def __eq__(self, other):
         comparisons = [
             self.code == other.code,
