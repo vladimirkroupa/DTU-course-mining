@@ -8,9 +8,7 @@ class JSONDecoder():
         pass
 
     def decode_course_runs(self, course_run_json):
-        cr_dicts = json.loads(course_run_json)
-        for dict in cr_dicts:
-            return self.decode_course_run(dict)
+        return [self.decode_course_run(dict) for dict in json.loads(course_run_json)]
 
     def decode_course_run(self, cr):
         grades = {}
@@ -26,12 +24,12 @@ class JSONDecoder():
             grades = None
 
         return CourseRun(
-            year = cr.get('year'),
+            year = int(cr.get('year')),
             semester = cr.get('semester'),
-            students_registered = cr.get('students_registered'),
-            students_attended = cr.get('students_attended'),
-            students_passed = cr.get('students_passed'),
-            not_shown = cr.get('not_shown'),
-            sick = cr.get('sick'),
+            students_registered = int(cr.get('students_registered')),
+            students_attended = int(cr.get('students_attended')),
+            students_passed = int(cr.get('students_passed')),
+            not_shown = int(cr.get('not_shown')),
+            sick = int(cr.get('sick')),
             grade_scale = grades
         )

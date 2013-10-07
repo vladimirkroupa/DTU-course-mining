@@ -10,6 +10,7 @@ Running the scraper:
 Running unit tests:
 --------------
 from the project root dir:
+
     python -m unittest discover
 
 

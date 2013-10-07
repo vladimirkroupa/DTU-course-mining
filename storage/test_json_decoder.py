@@ -6,7 +6,7 @@ import json
 
 class StorageTest(unittest.TestCase):
 
-    EXAMPLE_COURSE_RUN = """
+    EXAMPLE_COURSE_RUNS = """
     [
         {
             "grade_10": "27",
@@ -23,7 +23,7 @@ class StorageTest(unittest.TestCase):
         }
     ]"""
 
-    EXAMPLE_COURSE =  """
+    EXAMPLE_COURSES =  """
         [
             {
                 "code": "27002",
@@ -64,9 +64,9 @@ class StorageTest(unittest.TestCase):
         expected_course_runs = [CourseRun(
             year = 2009,
             semester = 'Vinter',
-            students_registered = None,
-            students_attended = None,
-            students_passed = None,
+            students_registered = 0,
+            students_attended = 0,
+            students_passed = 0,
             not_shown = 22,
             sick = 1,
             grade_scale = {'12' : 8,
@@ -77,7 +77,7 @@ class StorageTest(unittest.TestCase):
                            '00' : 9,
                            '-3' : 4}
         )]
-        course_runs = self.test_object.decode_course_runs(self.EXAMPLE_COURSE_RUN)
+        course_runs = self.test_object.decode_course_runs(self.EXAMPLE_COURSE_RUNS)
         self.assertEqual(expected_course_runs, course_runs)
 
 if __name__ == '__main__':
