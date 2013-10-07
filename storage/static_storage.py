@@ -13,7 +13,8 @@ class StaticStorage(Storage):
         return decoder.decode_courses(json_data)
 
     def last_update_date(self):
-        pass
+        # TODO: check the creation date of courses.json file
+        raise Exception('Not implemented yet.')
 
     def store_course_base(self, course_json):
-        pass
+        raise Exception('Not implemented.')
