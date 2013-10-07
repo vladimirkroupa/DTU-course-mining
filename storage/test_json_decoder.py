@@ -57,10 +57,10 @@ class StorageTest(unittest.TestCase):
 
     test_object = JSONDecoder()
 
-    def testBasisCourseDecodes(self):
+    def test_basic_course_decode(self):
         self.fail('Test not implemented.')
 
-    def testBasisCourseRunDecodes(self):
+    def test_basis_course_run_decode(self):
         expected_course_runs = [CourseRun(
             year = 2009,
             semester = 'Vinter',
@@ -77,7 +77,7 @@ class StorageTest(unittest.TestCase):
                            '00' : 9,
                            '-3' : 4}
         )]
-        course_runs = self.test_object.decodeCourseRuns(self.EXAMPLE_COURSE_RUN)
+        course_runs = self.test_object.decode_course_runs(self.EXAMPLE_COURSE_RUN)
         self.assertEqual(expected_course_runs, course_runs)
 
 if __name__ == '__main__':

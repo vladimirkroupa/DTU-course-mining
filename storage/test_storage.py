@@ -39,21 +39,21 @@ class StorageTest(unittest.TestCase):
 
     test_object = Storage()
 
-    def testEmptyStorage(self):
-        courses = self.test_object.readCourseBase()
-        update_date = self.test_object.lastUpdateDate()
+    def test_empty_storage(self):
+        courses = self.test_object.read_course_base()
+        update_date = self.test_object.last_update_date()
         self.assertEqual(None, courses)
         self.assertEqual(None, update_date)
 
-    def testBasicStorageDate(self):
-        self.test_object.storeCourseBase(self.EXAMPLE_JSON)
-        update_date = self.test_object.lastUpdateDate()
+    def test_basic_storage_date(self):
+        self.test_object.store_course_base(self.EXAMPLE_JSON)
+        update_date = self.test_object.last_update_date()
         expected_date = datetime.date.today()
         self.assertEqual(expected_date, update_date, "Date is not today's date.")
 
-    def testBasicStoreRead(self):
-        self.test_object.storeCourseBase(self.EXAMPLE_JSON)
-        courses = self.test_object.readCourseBase()
+    def test_basic_store_read(self):
+        self.test_object.store_course_base(self.EXAMPLE_JSON)
+        courses = self.test_object.read_course_base()
         expected_courses = datetime.date.today()
         self.assertEqual(courses, expected_courses, 'Courses read are not the same as courses stored')
 

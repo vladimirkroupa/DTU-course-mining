@@ -3,15 +3,16 @@ import json
 
 class JSONDecoder():
 
-    def decodeCourses(self, course_json):
+    def decode_courses(self, course_json):
+        print course_json
         pass
 
-    def decodeCourseRuns(self, course_run_json):
+    def decode_course_runs(self, course_run_json):
         cr_dicts = json.loads(course_run_json)
         for dict in cr_dicts:
-            return self.decodeCourseRun(dict)
+            return self.decode_course_run(dict)
 
-    def decodeCourseRun(self, cr):
+    def decode_course_run(self, cr):
         grades = {}
         grades['12'] = int(cr.get('grade_12'))
         grades['10'] = int(cr.get('grade_10'))

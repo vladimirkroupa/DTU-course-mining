@@ -3,20 +3,21 @@ import datetime
 class Storage():
 
 
-    def readCourseBase(self):
+    def read_course_base(self):
         """Retrieves latest course base.
 
         :return: list of Courses or None if storage is empty.
         """
         pass
 
-    def lastUpdateDate(self):
+    def last_update_date(self):
         """
         :return: retrieval date of latest course base or None if storage is empty.
         """
         pass
 
-    def storeCourseBase(self, course_json):
+    def store_course_base(self, course_json):
         """
         :param course_json: json string containing scraped course information
         """
+        pass

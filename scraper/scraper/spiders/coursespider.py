@@ -39,11 +39,11 @@ def single_elem(list):
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
     allowed_domains = ['dtu.dk']
-    start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx']
-    #start_urls = ['http://www.kurser.dtu.dk/2013-2014/27002.aspx?menulanguage=en-GB']
+    #start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx']
+    start_urls = ['http://www.kurser.dtu.dk/2013-2014/27002.aspx?menulanguage=en-GB']
     course_grades_parsed = defaultdict(int)
 
-    def parse(self, response):
+    def parse2(self, response):
         hxs = HtmlXPathSelector(response)
         base_url = get_base_url(response)
         self.log("Base URL: " + base_url)
@@ -67,7 +67,7 @@ class CourseSpider(BaseSpider):
         course_relpath = single_elem(onclick.re(regex))
         return urljoin(base_url, course_relpath)
 
-    def parse_course(self, response):
+    def parse(self, response):
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
         course = CourseItem(course_runs = [])
