@@ -4,9 +4,9 @@ from model.course_run import CourseRun
 from json_decoder import JSONDecoder
 import json
 
-class StorageTest(unittest.TestCase):
+class DecoderTest(unittest.TestCase):
 
-    EXAMPLE_COURSE_RUNS = """
+    COURSE_RUNS_JSON = """
     [
         {
             "grade_10": "27",
@@ -20,10 +20,14 @@ class StorageTest(unittest.TestCase):
             "year": "2009",
             "grade_7": "70",
             "grade_4": "19"
+        },
+        {
+            "semester": "Sommer",
+            "year": "2006"
         }
     ]"""
 
-    EXAMPLE_COURSES =  """
+    COURSES_JSON =  """
         [
             {
                 "code": "27002",
@@ -55,13 +59,8 @@ class StorageTest(unittest.TestCase):
             }
         ]"""
 
-    test_object = JSONDecoder()
-
-    def test_basic_course_decode(self):
-        self.fail('Test not implemented.')
-
-    def test_basis_course_run_decode(self):
-        expected_course_runs = [CourseRun(
+    EXPECTED_COURSE_RUNS = [
+        CourseRun(
             year = 2009,
             semester = 'Vinter',
             students_registered = 0,
@@ -76,9 +75,40 @@ class StorageTest(unittest.TestCase):
                            '02' : 12,
                            '00' : 9,
                            '-3' : 4}
+        ),
+        CourseRun(
+            year = 2006,
+            semester = 'Sommer',
+            students_registered = 0,
+            students_attended = 0,
+            students_passed = 0,
+            not_shown = 0,
+            sick = 0,
+            grade_scale = {}
         )]
-        course_runs = self.test_object.decode_course_runs(self.EXAMPLE_COURSE_RUNS)
-        self.assertEqual(expected_course_runs, course_runs)
+
+    test_object = JSONDecoder()
+
+    def test_basic_course_decode(self):
+        #self.fail('Test not implemented.')
+        expected_course = Course(
+            code = '27002',
+            language = 'Danish',
+            title_en = 'Life Science',
+            title_da = 'Biovidenskab',
+            evaluation_type = '7 step scale',
+            ects_credits = 5,
+            course_type = 'BSc',
+        )
+        for run in self.EXPECTED_COURSE_RUNS:
+            expected_course.add_course_run(run)
+
+        courses = self.test_object.decode_courses(self.COURSES_JSON)
+        self.assertEqual([expected_course], courses)
+
+    def test_basic_course_run_decode(self):
+        course_runs = self.test_object.decode_course_runs(self.COURSE_RUNS_JSON)
+        self.assertEqual(self.EXPECTED_COURSE_RUNS, course_runs)
 
 if __name__ == '__main__':
     unittest.main()

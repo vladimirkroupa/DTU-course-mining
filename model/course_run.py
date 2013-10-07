@@ -3,15 +3,26 @@ import operator
 class CourseRun:
 
     def __init__(self, year, semester, students_registered, students_attended, students_passed, not_shown, sick, grade_scale):
+
+        def init_grade_scale(self, grade_scale):
+            self.grade_scale = {}
+            self.grade_scale['12'] = grade_scale.get('12', 0)
+            self.grade_scale['10'] = grade_scale.get('10', 0)
+            self.grade_scale['7'] = grade_scale.get('7', 0)
+            self.grade_scale['4'] = grade_scale.get('4', 0)
+            self.grade_scale['02'] = grade_scale.get('02', 0)
+            self.grade_scale['00'] = grade_scale.get('00', 0)
+            self.grade_scale['-3'] = grade_scale.get('-3', 0)
+
         self.year = year
         # semesters + 3 week period: E, F, June, January
         self.semester = semester
         self.students_registered = students_registered
         self.students_attended = students_attended
         self.students_passed = students_passed
-        self.grade_scale = grade_scale
         self.not_shown = not_shown
         self.sick = sick
+        self.grade_scale = init_grade_scale(self, grade_scale)
 
     def exam_average(self):
         pass

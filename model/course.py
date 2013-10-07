@@ -8,6 +8,10 @@ class Course:
         self.evaluation_type = evaluation_type
         self.ects_credits = ects_credits
         self.course_type = course_type
+        self.course_runs = []
+
+    def add_course_run(self, course_run):
+        self.course_runs = course_run
 
     def is_7_grade_eval(self):
         pass
