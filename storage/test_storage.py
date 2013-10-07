@@ -45,12 +45,14 @@ class StorageTest(unittest.TestCase):
         self.assertEqual(None, courses)
         self.assertEqual(None, update_date)
 
+    @unittest.skip("not required ATM")
     def test_basic_storage_date(self):
         self.test_object.store_course_base(self.EXAMPLE_JSON)
         update_date = self.test_object.last_update_date()
         expected_date = datetime.date.today()
         self.assertEqual(expected_date, update_date, "Date is not today's date.")
 
+    @unittest.skip("not required ATM")
     def test_basic_store_read(self):
         self.test_object.store_course_base(self.EXAMPLE_JSON)
         courses = self.test_object.read_course_base()

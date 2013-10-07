@@ -87,11 +87,8 @@ class DecoderTest(unittest.TestCase):
             grade_scale = {}
         )]
 
-    test_object = JSONDecoder()
-
-    def test_basic_course_decode(self):
-        #self.fail('Test not implemented.')
-        expected_course = Course(
+    EXPECTED_COURSES = [
+        Course(
             code = '27002',
             language = 'Danish',
             title_en = 'Life Science',
@@ -99,15 +96,20 @@ class DecoderTest(unittest.TestCase):
             evaluation_type = '7 step scale',
             ects_credits = 5,
             course_type = 'BSc',
+            course_runs = EXPECTED_COURSE_RUNS
         )
-        for run in self.EXPECTED_COURSE_RUNS:
-            expected_course.add_course_run(run)
+    ]
 
+    test_object = JSONDecoder()
+
+
+    def test_basic_course_decode(self):
         courses = self.test_object.decode_courses(self.COURSES_JSON)
-        self.assertEqual([expected_course], courses)
+        self.assertEqual(self.EXPECTED_COURSES, courses)
 
     def test_basic_course_run_decode(self):
-        course_runs = self.test_object.decode_course_runs(self.COURSE_RUNS_JSON)
+        course_runs_dict = json.loads(self.COURSE_RUNS_JSON)
+        course_runs = self.test_object.decode_course_runs(course_runs_dict)
         self.assertEqual(self.EXPECTED_COURSE_RUNS, course_runs)
 
 if __name__ == '__main__':
