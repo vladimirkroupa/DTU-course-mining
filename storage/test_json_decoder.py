@@ -105,12 +105,12 @@ class DecoderTest(unittest.TestCase):
 
     def test_basic_course_decode(self):
         courses = self.test_object.decode_courses(self.COURSES_JSON)
-        self.assertEqual(self.EXPECTED_COURSES, courses)
+        self.assertEquals(self.EXPECTED_COURSES, courses)
 
     def test_basic_course_run_decode(self):
         course_runs_dict = json.loads(self.COURSE_RUNS_JSON)
         course_runs = self.test_object.decode_course_runs(course_runs_dict)
-        self.assertEqual(self.EXPECTED_COURSE_RUNS, course_runs)
+        self.assertEquals(self.EXPECTED_COURSE_RUNS, course_runs)
 
 if __name__ == '__main__':
     unittest.main()
