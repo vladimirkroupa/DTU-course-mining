@@ -17,3 +17,4 @@ from the project root dir:
 List of libraries to install:
 --------------
 - python-scrapy
+- mock
