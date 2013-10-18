@@ -1,6 +1,23 @@
+import operator
+
 class Department:
 
     def __init__(self, code, title_en, title_da):
         self.code = code
         self.name_en = title_en
         self.name_da = title_da
+
+    def __repr__(self):
+        templ = "{} : {} ({})"
+        return templ.format(self.code, self.name_en, self.name_da)
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __eq__(self, other):
+        comparisons = [
+            self.code == other.code,
+            self.name_en == other.name_en,
+            self.name_da == other.name_da
+        ]
+        return reduce(operator.and_, comparisons)

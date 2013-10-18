@@ -1,5 +1,6 @@
 from model.course_run import CourseRun
 from model.course import Course
+from model.department import Department
 import json
 
 class JSONDecoder():
@@ -10,6 +11,8 @@ class JSONDecoder():
     def decode_course(self, course_dict):
         cr_json = course_dict.get('course_runs')
         course_runs = self.decode_course_runs(cr_json)
+        dep_json = course_dict.get('department')
+        department = self.decode_department(dep_json)
 
         course = Course(
             code = course_dict['code'],
@@ -19,6 +22,7 @@ class JSONDecoder():
             evaluation_type = course_dict['evaluation_type'],
             ects_credits = course_dict['ects_credits'],
             course_type = course_dict['course_type'],
+            department = department
         )
         for run in course_runs:
             course.add_course_run(run)
@@ -48,3 +52,10 @@ class JSONDecoder():
             sick = int(cr.get('sick', 0)),
             grade_scale = grades
         )
+
+    def decode_department(self, department_json):
+        return Department(
+            code = department_json['code'],
+            title_en = department_json['title_en'],
+            title_da = department_json.get('title_da')
+    )

@@ -8,6 +8,7 @@ from urlparse import urljoin
 import re
 from scraper.items import CourseItem
 from scraper.items import CourseRun
+from scraper.items import DepartmentItem
 import logging
 from collections import defaultdict
 
@@ -30,6 +31,7 @@ def select(selector, xpath, expected = None):
 def check_len(list, item_count):
     if len(list) != item_count:
         raise PageStructureException("Expected {0} element(s), got: {1}".format(item_count, len(list)))
+    return list
 
 def single_elem(list):
     check_len(list, 1)
@@ -48,8 +50,18 @@ class CourseSpider(BaseSpider):
         self.log("Base URL: " + base_url)
         #for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]'):
         for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1]'):
+            department = self.parse_department(department_line)
             department_url = self.extract_department_link(base_url, department_line)
-            yield Request(department_url, callback = self.parse_department)
+            yield Request(department_url, callback = self.parse_department_page, meta = {'department' : department})
+
+    def parse_department(self, department_line):
+        line_text = select_single(department_line, 'td/lu/li/a/text()')
+        regex = '([0-9]+) ([\w\s]+)'
+        results = check_len(line_text.re(regex), 2)
+        department = DepartmentItem()
+        department['code'] = results[0]
+        department['title_en'] = results[1]
+        return department
 
     def extract_department_link(self, base_url, department_line):
         rel_path = select_single(department_line, 'td/lu/li/a/@href').extract()
@@ -57,14 +69,15 @@ class CourseSpider(BaseSpider):
         self.log("Extracted department URL: " + department_url)
         return department_url
 
-    def parse_department(self, response):
+    def parse_department_page(self, response):
+        department = response.meta['department']
         base_url = get_base_url(response)
         hxs = HtmlXPathSelector(response)
         for onclick in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr[2]/td/table/tr[@id]/@onclick'):
             course_url = self.extract_course_url(onclick, base_url)
             self.log("Extracted course URL: " + course_url)
             course_url_en = course_url + '?menulanguage=en-GB'
-            yield Request(course_url_en, callback = self.parse_course)
+            yield Request(course_url_en, callback = self.parse_course, meta = {'department' : department})
 
     def extract_course_url(self, onclick, base_url):
         regex = "(?:document.location=')(.*)(?:')"
@@ -72,9 +85,10 @@ class CourseSpider(BaseSpider):
         return urljoin(base_url, course_relpath)
 
     def parse_course(self, response):
+        department = response.meta['department']
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
-        course = CourseItem(course_runs = [])
+        course = CourseItem(course_runs = [], department = department)
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)

@@ -1,6 +1,7 @@
 import unittest
 from model.course import Course
 from model.course_run import CourseRun
+from model.department import Department
 from json_decoder import JSONDecoder
 import json
 
@@ -37,6 +38,11 @@ class DecoderTest(unittest.TestCase):
                 "title_en": "Life Science",
                 "ects_credits": "5",
                 "course_type": "BSc",
+                "department":
+                {
+                    "code": "27",
+                    "title_en": "Department of Systems Biology"
+                },
                 "course_runs": [
                     {
                         "semester": "Sommer",
@@ -96,7 +102,12 @@ class DecoderTest(unittest.TestCase):
             evaluation_type = '7 step scale',
             ects_credits = 5,
             course_type = 'BSc',
-            course_runs = EXPECTED_COURSE_RUNS
+            course_runs = EXPECTED_COURSE_RUNS,
+            department = Department(
+                code = '27',
+                title_en = 'Department of Systems Biology',
+                title_da = None
+            )
         )
     ]
 
