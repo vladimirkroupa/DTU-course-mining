@@ -2,7 +2,7 @@ import operator
 
 class Course:
     
-    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, course_runs = []):
+    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, department = None, course_runs = []):
         self.code = code
         self.language = language
         self.title_en = title_en
@@ -10,6 +10,7 @@ class Course:
         self.evaluation_type = evaluation_type
         self.ects_credits = ects_credits
         self.course_type = course_type
+        self.department = department
         self.course_runs = course_runs
 
     def add_course_run(self, course_run):
