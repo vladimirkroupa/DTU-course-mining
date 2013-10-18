@@ -39,19 +39,23 @@ def single_elem(list):
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
     allowed_domains = ['dtu.dk']
-    #start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx']
-    start_urls = ['http://www.kurser.dtu.dk/2013-2014/27002.aspx?menulanguage=en-GB']
+    start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx?menulanguage=en-GB']
     course_grades_parsed = defaultdict(int)
 
-    def parse2(self, response):
+    def parse(self, response):
         hxs = HtmlXPathSelector(response)
         base_url = get_base_url(response)
         self.log("Base URL: " + base_url)
-        for rel_path in hxs.select('(//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]/td/lu/li/a/@href)[1]').extract():
-        #for rel_path in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]/td/lu/li/a/@href').extract():
-            department_url = urljoin(base_url, rel_path)
-            self.log("Extracted department URL: " + department_url)
+        #for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]'):
+        for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1]'):
+            department_url = self.extract_department_link(base_url, department_line)
             yield Request(department_url, callback = self.parse_department)
+
+    def extract_department_link(self, base_url, department_line):
+        rel_path = select_single(department_line, 'td/lu/li/a/@href').extract()
+        department_url = urljoin(base_url, rel_path)
+        self.log("Extracted department URL: " + department_url)
+        return department_url
 
     def parse_department(self, response):
         base_url = get_base_url(response)
@@ -67,7 +71,7 @@ class CourseSpider(BaseSpider):
         course_relpath = single_elem(onclick.re(regex))
         return urljoin(base_url, course_relpath)
 
-    def parse(self, response):
+    def parse_course(self, response):
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
         course = CourseItem(course_runs = [])
