@@ -49,7 +49,7 @@ class CourseSpider(BaseSpider):
         base_url = get_base_url(response)
         self.log("Base URL: " + base_url)
         #for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]'):
-        for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1]'):
+        for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1] | //div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][2]'):
             department = self.parse_department(department_line)
             department_url = self.extract_department_link(base_url, department_line)
             yield Request(department_url, callback = self.parse_department_page, meta = {'department' : department})

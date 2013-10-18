@@ -1,44 +1,20 @@
 import unittest
 import datetime
 
-from storage import Storage
+from model.department import Department
+from static_storage import StaticStorage
 
 class StorageTest(unittest.TestCase):
 
-    EXAMPLE_JSON = """
-        [
-            {
-                "code": "27002",
-                "title_da": "Biovidenskab",
-                "language": "Danish",
-                "evaluation_type": "7 step scale",
-                "title_en": "Life Science",
-                "ects_credits": "5",
-                "course_type": "BSc",
-                "course_runs": [
-                    {
-                        "semester": "Sommer",
-                        "year": "2006"
-                    },
-                    {
-                        "grade_10": "27",
-                        "not_shown": "22",
-                        "grade_02": "12",
-                        "grade_00": "9",
-                        "grade_12": "8",
-                        "semester": "Vinter",
-                        "grade_minus_3": "4",
-                        "sick": "1",
-                        "year": "2009",
-                        "grade_7": "70",
-                        "grade_4": "19"
-                    }
-                ]
-            }
-        ]"""
+    #TODO: rely on presence of the file?
+    test_object = StaticStorage('scraper/courses.json')
 
-    test_object = Storage()
+    def test_list_departments(self):
+        expected_deps = [Department('27', 'Department of Systems Biology', None), Department('11', 'Department of Civil Engineering')]
+        departments = self.test_object.list_departments()
+        self.assertEqual(expected_deps, departments)
 
+    @unittest.skip("TODO")
     def test_empty_storage(self):
         courses = self.test_object.read_course_base()
         update_date = self.test_object.last_update_date()

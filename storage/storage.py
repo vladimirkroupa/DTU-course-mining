@@ -3,6 +3,12 @@ import datetime
 class Storage():
 
 
+    def list_departments(self):
+        """
+        :return: list of Departments or None if storage is empty
+        """
+        pass
+
     def read_course_base(self):
         """Retrieves latest course base.
 

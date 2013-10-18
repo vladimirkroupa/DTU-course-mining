@@ -14,6 +14,9 @@ class Department:
     def __str__(self):
         return self.__repr__()
 
+    def __key__(self):
+        return (self.code, self.name_en, self.name_da)
+
     def __eq__(self, other):
         comparisons = [
             self.code == other.code,
@@ -21,3 +24,6 @@ class Department:
             self.name_da == other.name_da
         ]
         return reduce(operator.and_, comparisons)
+
+    def __hash__(self):
+        return hash(self.__key__())
