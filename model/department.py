@@ -1,4 +1,5 @@
 import operator
+from storage.static_storage import StaticStorage
 
 class Department:
 
@@ -6,6 +7,10 @@ class Department:
         self.code = code
         self.name_en = title_en
         self.name_da = title_da
+        self.storage = StaticStorage()
+
+    def courses(self):
+        return self.storage.find_department_by_code(self.code)
 
     def __repr__(self):
         templ = "{} : {} ({})"
