@@ -6,22 +6,30 @@ class StaticStorage(Storage):
     """Simple implementation using the static courses.json file created by Scrapy.
     """
 
-    def __init__(self, file_to_use = '../scraper/courses.json'):
-        self.file = file_to_use
-        json_file = open(self.file)
-        self.json_data = json_file.read()
+    def __init__(self, file_to_use = 'scraper/courses.json'):
+        json_file = open(file_to_use)
+        self.json_data = json.load(json_file)
         json_file.close()
 
     def list_departments(self):
         departments = set()
-        courses = self.read_course_base()
+        courses = self.list_courses()
         for course in courses:
             departments.add(course.department)
         return list(departments)
 
-    def read_course_base(self):
+    def find_department_by_code(self, code):
+        for department in self.list_departments():
+            if department.code == code:
+                return department
+        return None
+
+    def list_courses(self, department_code = None):
         decoder = JSONDecoder()
-        return decoder.decode_courses(self.json_data)
+        courses = decoder.decode_courses(self.json_data)
+        if department_code:
+            courses = [course for course in courses if course.department.code == department_code]
+        return courses
 
     def last_update_date(self):
         # TODO: check the creation date of courses.json file
