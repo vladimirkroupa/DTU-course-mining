@@ -55,12 +55,15 @@ class CourseSpider(BaseSpider):
             yield Request(department_url, callback = self.parse_department_page, meta = {'department' : department})
 
     def parse_department(self, department_line):
-        line_text = select_single(department_line, 'td/lu/li/a/text()')
-        regex = '([0-9]+) ([\w\s]+)'
-        results = check_len(line_text.re(regex), 2)
+        line_text = select_single(department_line, 'td/lu/li/a/text()').extract().strip().encode('utf-8')
+        regex = re.compile('([0-9]+) ([\w\s]+)')
+        match = regex.match(line_text)
+        groups = match.groups()
+        check_len(groups, 2)
+        code, title_en = groups
         department = DepartmentItem()
-        department['code'] = results[0]
-        department['title_en'] = results[1]
+        department['code'] = code
+        department['title_en'] = title_en
         return department
 
     def extract_department_link(self, base_url, department_line):

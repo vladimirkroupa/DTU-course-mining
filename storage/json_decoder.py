@@ -6,7 +6,7 @@ import json
 class JSONDecoder():
 
     def decode_courses(self, course_json):
-        return [self.decode_course(dict) for dict in json.loads(course_json)]
+        return [self.decode_course(dict) for dict in course_json]
 
     def decode_course(self, course_dict):
         cr_json = course_dict.get('course_runs')

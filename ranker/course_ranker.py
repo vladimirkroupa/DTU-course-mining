@@ -12,6 +12,6 @@ class CourseRanker:
             return True
 
     def course_ranking(self, department = None, course_type = None):
-        all_courses = self.storage.read_course_base()
+        all_courses = self.storage.list_courses()
         filtered_courses =  [course for course in all_courses if self._course_predicate(course, department, course_type)]
         return filtered_courses

@@ -115,7 +115,8 @@ class DecoderTest(unittest.TestCase):
 
 
     def test_basic_course_decode(self):
-        courses = self.test_object.decode_courses(self.COURSES_JSON)
+        courses_dict = json.loads(self.COURSES_JSON)
+        courses = self.test_object.decode_courses(courses_dict)
         self.assertEquals(self.EXPECTED_COURSES, courses)
 
     def test_basic_course_run_decode(self):

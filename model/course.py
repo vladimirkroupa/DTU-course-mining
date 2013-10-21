@@ -34,6 +34,7 @@ class Course:
         return templ.format(self.code, self.language, self.title_en, self.title_da, self.evaluation_type,
                             self.ects_credits, self.course_type, self.course_runs, self.department)
 
+
     def __str__(self):
         return self.__repr__()
 
