@@ -7,11 +7,11 @@ from static_storage import StaticStorage
 class StorageTest(unittest.TestCase):
 
     #TODO: rely on presence of the file?
-    test_object = StaticStorage('scraper/courses.json')
+    test_object = StaticStorage('storage/test_courses.json')
 
     def test_list_departments(self):
-        expected_deps = [Department('27', 'Department of Systems Biology', None), Department('11', 'Department of Civil Engineering', None)]
-        departments = self.test_object.list_departments()
+        expected_deps = set([Department('27', 'Department of Systems Biology', None), Department('11', 'Department of Civil Engineering', None)])
+        departments = set(self.test_object.list_departments())
         self.assertEqual(expected_deps, departments)
 
     def test_list_all_courses(self):

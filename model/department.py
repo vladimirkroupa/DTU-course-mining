@@ -1,20 +1,20 @@
 import operator
-from storage.static_storage import StaticStorage
 
 class Department:
 
-    def __init__(self, code, title_en, title_da):
+    def __init__(self, code, title_en, title_da, courses = []):
         self.code = code
         self.name_en = title_en
         self.name_da = title_da
-        self.storage = StaticStorage()
+        self.courses = courses
 
-    def courses(self):
-        return self.storage.find_department_by_code(self.code)
+    def add_course(self, course):
+        self.courses.append(course)
 
     def __repr__(self):
-        templ = "{} : {} ({})"
-        return templ.format(self.code, self.name_en, self.name_da)
+        templ = u"{} : {} ({})"
+        result = templ.format(self.code, self.name_en, self.name_da)
+        return result.encode("utf-8")
 
     def __str__(self):
         return self.__repr__()

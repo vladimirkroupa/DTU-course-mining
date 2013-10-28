@@ -7,29 +7,39 @@ class StaticStorage(Storage):
     """
 
     def __init__(self, file_to_use = 'scraper/courses.json'):
+        self.departments = {}
         json_file = open(file_to_use)
-        self.json_data = json.load(json_file)
+        json_data = json.load(json_file)
         json_file.close()
+        self._load_departments(json_data)
+
+    def _load_departments(self, json_data):
+        decoder = JSONDecoder()
+        courses = decoder.decode_courses(json_data)
+
+        for course in courses:
+            if course.department not in self.departments:
+                self.departments[course.department.code] = course.department
+            department = self.departments[course.department.code]
+            department.add_course(course)
 
     def list_departments(self):
-        departments = set()
-        courses = self.list_courses()
-        for course in courses:
-            departments.add(course.department)
-        return list(departments)
+        return self.departments.values()
 
     def find_department_by_code(self, code):
-        for department in self.list_departments():
+        for department in self.departments:
             if department.code == code:
                 return department
         return None
 
     def list_courses(self, department_code = None):
-        decoder = JSONDecoder()
-        courses = decoder.decode_courses(self.json_data)
         if department_code:
-            courses = [course for course in courses if course.department.code == department_code]
-        return courses
+           return self.departments[department_code]
+        else:
+            all_courses = []
+            for department in self.departments.values():
+                all_courses.extend(department.courses)
+            return all_courses
 
     def last_update_date(self):
         # TODO: check the creation date of courses.json file
