@@ -159,9 +159,9 @@ class CourseSpider(BaseSpider):
         href = select_single(hxs, '//tr[@class = "tabNavigation"]//a[text() = "Information"]/@href').extract()
         url = urljoin(base_url, href)
         course = response.meta['course']
-        return Request(url, callback = self.parse_grade_overview_page, meta = {'course' : course})
+        return Request(url, callback = self.parse_course_information_page, meta = {'course' : course})
 
-    def parse_grade_overview_page(self, response):
+    def parse_course_information_page(self, response):
         hxs = HtmlXPathSelector(response)
         grades_table = select_single(hxs, '//td[@class = "ContentMain"]//table[contains(tr/td/b/text(), "Grades")]')
         grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
