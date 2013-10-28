@@ -27,19 +27,13 @@ class StaticStorage(Storage):
         return self.departments.values()
 
     def find_department_by_code(self, code):
-        for department in self.departments:
-            if department.code == code:
-                return department
-        return None
+        return self.departments.get(code)
 
-    def list_courses(self, department_code = None):
-        if department_code:
-           return self.departments[department_code]
-        else:
-            all_courses = []
-            for department in self.departments.values():
-                all_courses.extend(department.courses)
-            return all_courses
+    def list_all_courses(self, department_code = None):
+        all_courses = []
+        for department in self.departments.values():
+            all_courses.extend(department.courses)
+        return all_courses
 
     def last_update_date(self):
         # TODO: check the creation date of courses.json file

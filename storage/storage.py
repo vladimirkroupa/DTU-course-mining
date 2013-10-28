@@ -12,7 +12,7 @@ class Storage():
     def find_department_by_code(self, code):
         pass
 
-    def list_courses(self, department_code = None):
+    def list_all_courses(self, department_code = None):
         """Retrieves latest course base.
 
         :return: list of Courses or None if storage is empty.

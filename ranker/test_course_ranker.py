@@ -47,7 +47,7 @@ class CourseRankerTest(unittest.TestCase):
     ALL_COURSES = [COURSE_1, COURSE_2, COURSE_3]
 
     storageStub = Storage()
-    storageStub.list_courses = Mock(return_value = ALL_COURSES)
+    storageStub.list_all_courses = Mock(return_value = ALL_COURSES)
     test_object = CourseRanker(storageStub)
 
     def test_all_courses(self):
