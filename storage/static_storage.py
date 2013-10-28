@@ -20,6 +20,7 @@ class StaticStorage(Storage):
         for course in courses:
             if course.department not in self.departments:
                 self.departments[course.department.code] = course.department
+
             department = self.departments[course.department.code]
             department.add_course(course)
 
@@ -29,7 +30,7 @@ class StaticStorage(Storage):
     def find_department_by_code(self, code):
         return self.departments.get(code)
 
-    def list_all_courses(self, department_code = None):
+    def list_all_courses(self):
         all_courses = []
         for department in self.departments.values():
             all_courses.extend(department.courses)
