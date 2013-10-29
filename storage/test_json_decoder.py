@@ -38,7 +38,7 @@ class DecoderTest(unittest.TestCase):
                 "language": "Danish",
                 "evaluation_type": "7 step scale",
                 "title_en": "Life Science",
-                "ects_credits": "5.5",
+                "ects_credits": "5,5",
                 "course_type": "BSc",
                 "department":
                 {
