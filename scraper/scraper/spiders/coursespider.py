@@ -183,11 +183,15 @@ class CourseSpider(BaseSpider):
         course = response.request.meta['course']
         hxs = HtmlXPathSelector(response)
 
-        stats_table = select_single('//table[contains(tr/td/text(), "Statistics")]')
+        stats_table = select_single(hxs, '//table[contains(tr/td/text(), "Statistics")]')
         could_answer = select_single(stats_table, 'tr[contains(td/text(), "could answer this evaluation form")]/td[1]/b/text()')
         have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
+        answers_table = select_single(hxs, '//form/table[2]')
 
         pass
+
+    def parse_answers_table(self, table):
+
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
