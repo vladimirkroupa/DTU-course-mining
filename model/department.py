@@ -2,11 +2,12 @@ import operator
 
 class Department:
 
-    def __init__(self, code, title_en, title_da, courses = []):
+    def __init__(self, code, title_en, title_da, courses = None):
         self.code = code
         self.name_en = title_en
         self.name_da = title_da
-        self.courses = courses
+        if courses is None:
+            self.courses = []
 
     def add_course(self, course):
         self.courses.append(course)
@@ -29,6 +30,9 @@ class Department:
             self.name_da == other.name_da
         ]
         return reduce(operator.and_, comparisons)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__key__())

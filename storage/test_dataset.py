@@ -5,7 +5,7 @@ from model.department import Department
 COURSE_RUNS_SB = [
     CourseRun(
         year = 2007,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -21,7 +21,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2008,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -37,7 +37,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2009,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -53,7 +53,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2010,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -69,7 +69,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2011,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -85,7 +85,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2012,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -103,7 +103,7 @@ COURSE_RUNS_SB = [
 COURSE_RUNS_DIB = [
     CourseRun(
         year = 2007,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -119,7 +119,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2008,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -135,7 +135,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2009,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -151,7 +151,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2011,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -167,7 +167,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2012,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -183,7 +183,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2010,
-        semester = 'Vinter',
+        semester = 'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -201,7 +201,7 @@ COURSE_RUNS_DIB = [
 COURSE_RUNS_AIB = [
     CourseRun(
     year = 2012,
-    semester = 'Vinter',
+    semester = 'E',
     students_registered = 0,
     students_attended = 0,
     students_passed = 0,

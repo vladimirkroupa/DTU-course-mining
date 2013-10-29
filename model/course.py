@@ -73,3 +73,6 @@ class Course:
             self.department == other.department
         ]
         return reduce(operator.and_, comparisons)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
