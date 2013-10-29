@@ -7,6 +7,8 @@ import json
 
 class DecoderTest(unittest.TestCase):
 
+    maxDiff = None
+
     COURSE_RUNS_JSON = """
     [
         {

@@ -2,11 +2,15 @@ import unittest
 import datetime
 
 from model.department import Department
+from model.course import Course
+from model.course_run import CourseRun
+from test_dataset import COURSES
 from static_storage import StaticStorage
 
 class StorageTest(unittest.TestCase):
 
-    #TODO: rely on presence of the file?
+    maxDiff = None
+
     test_object = StaticStorage('storage/test_courses.json')
 
     def test_list_departments(self):
@@ -14,15 +18,14 @@ class StorageTest(unittest.TestCase):
         departments = set(self.test_object.list_departments())
         self.assertEqual(expected_deps, departments)
 
+    def test_list_all_courses(self):
+        actual_courses = self.test_object.list_all_courses()
+        self.assertEqual(COURSES, actual_courses)
+
     def test_find_department_by_code(self):
         expected = Department('11', 'Department of Civil Engineering', None)
         department= self.test_object.find_department_by_code('11')
         self.assertEqual(expected, department)
-
-    @unittest.skip("TODO")
-    def test_list_all_courses(self):
-        courses = self.test_object.list_all_courses()
-        self.assertEqual([], courses)
 
     @unittest.skip("TODO")
     def test_empty_storage(self):

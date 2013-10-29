@@ -19,7 +19,6 @@ class CourseRankerTest(unittest.TestCase):
             ects_credits = 5,
             course_type = 'BSc',
             department = BIO_DEP,
-            course_runs = []
     )
     COURSE_2 = Course(
             code = '27003',
@@ -30,7 +29,6 @@ class CourseRankerTest(unittest.TestCase):
             ects_credits = 6,
             course_type = 'MSc',
             department = BIO_DEP,
-            course_runs = []
     )
     COURSE_3 = Course(
             code = '28000',
@@ -41,7 +39,6 @@ class CourseRankerTest(unittest.TestCase):
             ects_credits = 7,
             course_type = 'MSc',
             department = PHYS_DEP,
-            course_runs = []
     )
 
     ALL_COURSES = [COURSE_1, COURSE_2, COURSE_3]
