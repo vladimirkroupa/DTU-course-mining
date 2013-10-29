@@ -2,10 +2,10 @@ import operator
 
 class Department:
 
-    def __init__(self, code, name_en, name_da, courses = []):
+    def __init__(self, code, title_en, title_da, courses = []):
         self.code = code
-        self.name_en = name_en
-        self.name_da = name_da
+        self.name_en = title_en
+        self.name_da = title_da
         self.courses = courses
 
     def add_course(self, course):
