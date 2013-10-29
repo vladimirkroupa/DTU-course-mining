@@ -18,10 +18,13 @@ class StaticStorage(Storage):
         courses = decoder.decode_courses(json_data)
 
         for course in courses:
-            if course.department not in self.departments:
-                self.departments[course.department.code] = course.department
-            department = self.departments[course.department.code]
+            dep_code = course.department.code
+            if not self.departments.has_key(dep_code):
+                self.departments[dep_code] = course.department
+
+            department = self.departments[dep_code]
             department.add_course(course)
+        print len(courses)
 
     def list_departments(self):
         return self.departments.values()
@@ -29,7 +32,7 @@ class StaticStorage(Storage):
     def find_department_by_code(self, code):
         return self.departments.get(code)
 
-    def list_all_courses(self, department_code = None):
+    def list_all_courses(self):
         all_courses = []
         for department in self.departments.values():
             all_courses.extend(department.courses)

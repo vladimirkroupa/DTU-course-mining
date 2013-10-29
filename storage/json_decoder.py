@@ -20,7 +20,7 @@ class JSONDecoder():
             title_en = course_dict['title_en'],
             title_da = course_dict['title_da'],
             evaluation_type = course_dict['evaluation_type'],
-            ects_credits = course_dict['ects_credits'],
+            ects_credits = int(course_dict['ects_credits']),
             course_type = course_dict['course_type'],
             department = department
         )
@@ -44,7 +44,7 @@ class JSONDecoder():
 
         return CourseRun(
             year = int(cr.get('year')),
-            semester = cr.get('semester'),
+            semester = self.parse_semester(cr.get('semester')),
             students_registered = int(cr.get('students_registered', 0)),
             students_attended = int(cr.get('students_attended', 0)),
             students_passed = int(cr.get('students_passed', 0)),
@@ -52,6 +52,13 @@ class JSONDecoder():
             sick = int(cr.get('sick', 0)),
             grade_scale = grades
         )
+
+    def parse_semester(self, semester):
+        if semester == 'Vinter':
+            return 'E'
+        elif semester == 'Sommer':
+            return 'F'
+        raise Exception("Unknown semester value: " + semester)
 
     def decode_department(self, department_json):
         return Department(

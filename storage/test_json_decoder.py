@@ -7,6 +7,8 @@ import json
 
 class DecoderTest(unittest.TestCase):
 
+    maxDiff = None
+
     COURSE_RUNS_JSON = """
     [
         {
@@ -68,7 +70,7 @@ class DecoderTest(unittest.TestCase):
     EXPECTED_COURSE_RUNS = [
         CourseRun(
             year = 2009,
-            semester = 'Vinter',
+            semester = 'E',
             students_registered = 0,
             students_attended = 0,
             students_passed = 0,
@@ -84,7 +86,7 @@ class DecoderTest(unittest.TestCase):
         ),
         CourseRun(
             year = 2006,
-            semester = 'Sommer',
+            semester = 'F',
             students_registered = 0,
             students_attended = 0,
             students_passed = 0,
