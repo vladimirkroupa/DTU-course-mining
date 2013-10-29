@@ -11,6 +11,7 @@ class Department:
 
     def add_course(self, course):
         self.courses.append(course)
+        course.department = self
 
     def __repr__(self):
         templ = u"{} : {} ({})"
