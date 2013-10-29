@@ -163,13 +163,31 @@ class CourseSpider(BaseSpider):
 
     def parse_course_information_page(self, response):
         hxs = HtmlXPathSelector(response)
-        grades_table = select_single(hxs, '//td[@class = "ContentMain"]//table[contains(tr/td/b/text(), "Grades")]')
+        course = response.meta['course']
+        main_td = select_single(hxs, '//td[@class = "ContentMain"]')
+        grades_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Grades")]')
         grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
-        page_no = 0
+        grade_page_no = 0
         for link in grade_links:
-            page_no += 1
-            course = response.meta['course']
+            grade_page_no += 1
             yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links)})
+
+        evaluations_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Course evaluations")]')
+        eval_links = evaluations_table.select('tr/td/a/@href').extract()
+        eval_page_no = 0
+        for link in eval_links:
+            eval_page_no += 1
+            yield Request(link, callback = self.parse_evaluation_page, meta = {'course' : course, 'total_eval_pages' : len(eval_links)})
+
+    def parse_evaluation_page(self, response):
+        course = response.request.meta['course']
+        hxs = HtmlXPathSelector(response)
+
+        stats_table = select_single('//table[contains(tr/td/text(), "Statistics")]')
+        could_answer = select_single(stats_table, 'tr[contains(td/text(), "could answer this evaluation form")]/td[1]/b/text()')
+        have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
+
+        pass
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
