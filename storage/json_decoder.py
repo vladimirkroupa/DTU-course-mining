@@ -20,7 +20,7 @@ class JSONDecoder():
             title_en = course_dict['title_en'],
             title_da = course_dict['title_da'],
             evaluation_type = course_dict['evaluation_type'],
-            ects_credits = course_dict['ects_credits'],
+            ects_credits = int(course_dict['ects_credits']),
             course_type = course_dict['course_type'],
             department = department
         )

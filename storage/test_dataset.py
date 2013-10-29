@@ -5,7 +5,7 @@ from model.department import Department
 COURSE_RUNS_SB = [
     CourseRun(
         year = 2007,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -21,7 +21,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2008,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -37,7 +37,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2009,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -53,7 +53,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2010,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -69,7 +69,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2011,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -85,7 +85,7 @@ COURSE_RUNS_SB = [
     ),
     CourseRun(
         year = 2012,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -103,7 +103,7 @@ COURSE_RUNS_SB = [
 COURSE_RUNS_DIB = [
     CourseRun(
         year = 2007,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -119,7 +119,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2008,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -135,7 +135,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2009,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -151,7 +151,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2011,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -167,7 +167,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2012,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -183,7 +183,7 @@ COURSE_RUNS_DIB = [
     ),
     CourseRun(
         year = 2010,
-        semester = 'E',
+        semester = u'E',
         students_registered = 0,
         students_attended = 0,
         students_passed = 0,
@@ -201,7 +201,7 @@ COURSE_RUNS_DIB = [
 COURSE_RUNS_AIB = [
     CourseRun(
     year = 2012,
-    semester = 'E',
+    semester = u'E',
     students_registered = 0,
     students_attended = 0,
     students_passed = 0,
@@ -219,47 +219,47 @@ COURSE_RUNS_AIB = [
 
 COURSES = [
     Course(
-        code = '11116',
-        language = 'English',
-        title_en = 'Sustainable Buildings',
-        title_da = 'Energirigtigt byggeri',
-        evaluation_type = '7 step scale',
+        code = u'11116',
+        language = u'English',
+        title_en = u'Sustainable Buildings',
+        title_da = u'Energirigtigt byggeri',
+        evaluation_type = u'7 step scale',
         ects_credits = 10,
-        course_type = 'MSc',
+        course_type = u'MSc',
         course_runs = COURSE_RUNS_SB,
         department = Department(
-            code = '11',
-            title_en = 'Department of Civil Engineering',
+            code = u'11',
+            title_en = u'Department of Civil Engineering',
             title_da = None
         )
     ),
     Course(
-        code = '11120',
-        language = 'English',
-        title_en = 'Daylight in buildings',
-        title_da = 'Dagslys i bygninger',
-        evaluation_type = '7 step scale',
+        code = u'11120',
+        language = u'English',
+        title_en = u'Daylight in buildings',
+        title_da = u'Dagslys i bygninger',
+        evaluation_type = u'7 step scale',
         ects_credits = 5,
-        course_type = 'MSc',
+        course_type = u'MSc',
         course_runs = COURSE_RUNS_DIB,
         department = Department(
-            code = '11',
-            title_en = 'Department of Civil Engineering',
+            code = u'11',
+            title_en = u'Department of Civil Engineering',
             title_da = None
         )
     ),
     Course(
-        code = '27625',
-        language = 'English',
-        title_en = 'Algorithms in bioinformatics',
-        title_da = 'Algoritmer i bioinformatik',
-        evaluation_type = '7 step scale',
+        code = u'27625',
+        language = u'English',
+        title_en = u'Algorithms in bioinformatics',
+        title_da = u'Algoritmer i bioinformatik',
+        evaluation_type = u'7 step scale',
         ects_credits = 5,
-        course_type = 'MSc',
+        course_type = u'MSc',
         course_runs = COURSE_RUNS_AIB,
         department = Department(
-            code = '27',
-            title_en = 'Department of Systems Biology',
+            code = u'27',
+            title_en = u'Department of Systems Biology',
             title_da = None
         )
     )
