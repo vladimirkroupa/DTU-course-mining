@@ -29,7 +29,6 @@ class CourseRun(Item):
     exam_average = Field()
     grade_12 = Field()
     grade_10 = Field()
-    grade_10 = Field()
     grade_7 = Field()
     grade_4 = Field()
     grade_02 = Field()
