@@ -6,9 +6,9 @@ from scrapy.http import Request
 from scrapy.utils.response import get_base_url
 from urlparse import urljoin
 import re
-from scraper.items import CourseItem
-from scraper.items import CourseRun
-from scraper.items import DepartmentItem
+from scraper.scraper.items import CourseItem
+from scraper.scraper.items import CourseRun
+from scraper.scraper.items import DepartmentItem
 import logging
 from collections import defaultdict
 
@@ -188,10 +188,31 @@ class CourseSpider(BaseSpider):
         have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
         answers_table = select_single(hxs, '//form/table[2]')
 
+        #TODO: (//form/table[2]/tbody/tr[contains(td/em/text(), "I think the course description’s prerequisites are")]/following-sibling::tr[count(child::td) = 4]/td[4])
         pass
 
     def parse_answers_table(self, table):
 
+        xpath_templ = 'tr[contains(td/em/text(), "{}")]'
+        nth_xpath = '(following-sibling::tr[count(child::td) = 4]/td[4])[{}]'
+
+        def parse_question(self, table, question_text):
+            xpath = xpath_templ.format(question_text)
+            question_row = select_single(table, xpath)
+            answer_1 = select_single(question_row, nth_xpath.format(1))
+            answer_2 = select_single(question_row, nth_xpath.format(2))
+            answer_3  = select_single(question_row, nth_xpath.format(3))
+            answer_4 = select_single(question_row, nth_xpath.format(4))
+            answer_5 = select_single(question_row, nth_xpath.format(5))
+            return (answer_1, answer_2, answer_3, answer_4, answer_5)
+
+        def parse_workload_question(self, table):
+            return parse_question(table, 'I think my performance during the course is')
+
+        def parse_prereq_question(self, table):
+            return parse_question(table, 'I think the course description’s prerequisites are')
+
+        pass
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
