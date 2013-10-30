@@ -27,6 +27,9 @@ class Course:
     def list_of_years_run(self):
         return []
 
+    def all_course_runs(self):
+        return self.course_runs.values()
+
     def get_course_run(self, year, semester):
         """
             semester = E / F
