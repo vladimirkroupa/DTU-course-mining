@@ -39,7 +39,8 @@ def course_run_avg(course_run):
 
 
 def course_avg(course):
-    for course_run in course.course_runs:
+    #for course_run in course.course_runs: # OLD, worked 28/10/2013
+    for course_run in course.all_course_runs():
         #print course.code, course.title_en # FOR DEVELOPMENT
         return course_run_avg(course_run)
 
