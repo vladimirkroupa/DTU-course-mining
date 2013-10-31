@@ -6,36 +6,12 @@ from scrapy.http import Request
 from scrapy.utils.response import get_base_url
 from urlparse import urljoin
 import re
-from scraper.scraper.items import CourseItem
-from scraper.scraper.items import CourseRun
-from scraper.scraper.items import DepartmentItem
+from scraper.items import CourseItem
+from scraper.items import CourseRun
+from scraper.items import DepartmentItem
 import logging
 from collections import defaultdict
-
-#TODO: need to move out everything except the class itself
-
-class PageStructureException(Exception):
-    pass
-
-
-def select_single(selector, xpath):
-    return select(selector, xpath, expected = 1)[0]
-
-def select(selector, xpath, expected = None):
-    result = selector.select(xpath)
-    if expected is not None and len(result) != expected:
-        msg = "Expected {0} result(s), got {1}. XPath expression: {2} Selector content: {3}".format(expected, len(result), xpath, selector.extract().encode('utf-8'))
-        raise PageStructureException(msg)
-    return result
-
-def check_len(list, item_count):
-    if len(list) != item_count:
-        raise PageStructureException("Expected {0} element(s), got: {1}".format(item_count, len(list)))
-    return list
-
-def single_elem(list):
-    check_len(list, 1)
-    return list[0]
+from util.scrapy_utils import *
 
 
 class CourseSpider(BaseSpider):
@@ -186,33 +162,42 @@ class CourseSpider(BaseSpider):
         stats_table = select_single(hxs, '//table[contains(tr/td/text(), "Statistics")]')
         could_answer = select_single(stats_table, 'tr[contains(td/text(), "could answer this evaluation form")]/td[1]/b/text()')
         have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
+        did_not_follow = select_single(stats_table, 'tr[contains(td/text(), "did not follow the course")]/td[1]/b/text()')
         answers_table = select_single(hxs, '//form/table[2]')
+
+        self.parse_answers_table(answers_table, course)
 
         #TODO: (//form/table[2]/tbody/tr[contains(td/em/text(), "I think the course description’s prerequisites are")]/following-sibling::tr[count(child::td) = 4]/td[4])
         pass
 
-    def parse_answers_table(self, table):
+    def parse_answers_table(self, table, course):
 
         xpath_templ = 'tr[contains(td/em/text(), "{}")]'
-        nth_xpath = '(following-sibling::tr[count(child::td) = 4]/td[4])[{}]'
+        nth_xpath = '(following-sibling::tr[count(child::td) = 4]/td[3]/text())[{}]'
 
-        def parse_question(self, table, question_text):
+        def parse_question(table, question_text):
             xpath = xpath_templ.format(question_text)
             question_row = select_single(table, xpath)
-            answer_1 = select_single(question_row, nth_xpath.format(1))
-            answer_2 = select_single(question_row, nth_xpath.format(2))
-            answer_3  = select_single(question_row, nth_xpath.format(3))
-            answer_4 = select_single(question_row, nth_xpath.format(4))
-            answer_5 = select_single(question_row, nth_xpath.format(5))
+            answer_1 = select_single(question_row, nth_xpath.format(1)).extract()
+            answer_2 = select_single(question_row, nth_xpath.format(2)).extract()
+            answer_3  = select_single(question_row, nth_xpath.format(3)).extract()
+            answer_4 = select_single(question_row, nth_xpath.format(4)).extract()
+            answer_5 = select_single(question_row, nth_xpath.format(5)).extract()
             return (answer_1, answer_2, answer_3, answer_4, answer_5)
 
-        def parse_workload_question(self, table):
+        def parse_workload_question(table):
             return parse_question(table, 'I think my performance during the course is')
 
-        def parse_prereq_question(self, table):
-            return parse_question(table, 'I think the course description’s prerequisites are')
+        def parse_prereq_question(table):
+            return parse_question(table, 'I think the course description')
 
-        pass
+        workload_answers = parse_workload_question(table)
+        
+        prereq_anwers = parse_prereq_question(table)
+
+        print workload_answers
+
+        print prereq_anwers
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']

@@ -1,15 +1,15 @@
 import unittest
 import os
-from scraper.scraper.spiders.coursespider import CourseSpider
+from scraper.spiders.coursespider import CourseSpider
 from util.scrapy_testutils import fake_response_from_file
-from scraper.scraper.spiders.tests import __file__ as test_directory
-from scraper.scraper.items import DepartmentItem
-from scraper.scraper.items import CourseItem
+from scraper.spiders.tests import __file__ as test_directory
+from scraper.items import DepartmentItem
+from scraper.items import CourseItem
 
 def data_dir():
     return os.path.join(os.path.dirname(test_directory), 'data')
 
-class OsdirSpiderTest(unittest.TestCase):
+class CourseSpiderTest(unittest.TestCase):
 
     def setUp(self):
         self.spider = CourseSpider()
@@ -18,6 +18,7 @@ class OsdirSpiderTest(unittest.TestCase):
         self.course_27002_page = os.path.join(data_dir(), '27002.html')
         self.course_27002_info_page = os.path.join(data_dir(), '27002_information.html')
         self.course_27002_course_run_page = os.path.join(data_dir(), '27002_course_run_summer_2010.html')
+        self.course_27002_evaluation_page = os.path.join(data_dir(), '27002_evaluation.html')
 
     def _check_departments(self, results):
         expected = [
@@ -83,3 +84,11 @@ class OsdirSpiderTest(unittest.TestCase):
         self.assertEqual(u'8', course_run['grade_minus_3'])
         self.assertEqual(u'2', course_run['sick'])
         self.assertEqual(u'11', course_run['not_shown'])
+
+    def test_parse_evaluation_page(self):
+        response = fake_response_from_file(self.course_27002_evaluation_page)
+        response.meta['course'] = CourseItem()
+        response.meta['total_eval_pages'] = 1
+        self.spider.parse_evaluation_page(response)
+
+        pass
