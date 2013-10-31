@@ -12,11 +12,11 @@ from util.scrapy_utils import *
 from course_run_parser import CourseRunParser
 
 class CourseSpider(BaseSpider):
+    name = 'CourseSpider'
+    allowed_domains = ['dtu.dk']
+    start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx?menulanguage=en-GB']
 
     def __init__(self):
-        self.name = 'CourseSpider'
-        self.allowed_domains = ['dtu.dk']
-        self.start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx?menulanguage=en-GB']
         self.course_run_parser = CourseRunParser(self.log)
 
     def parse(self, response):
