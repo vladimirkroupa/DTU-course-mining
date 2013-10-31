@@ -66,11 +66,11 @@ class CourseSpiderTest(unittest.TestCase):
         response = fake_response_from_file(self.course_27002_course_run_page)
         response.meta['course'] = CourseItem(course_runs = [], code = '27002')
         response.meta['total_grade_pages'] = 1
-        courseItem = self.spider.parse_grade_dist_page(response)
+        courseItem = self.spider.course_run_parser.parse_grade_dist_page(response)
         course_run = courseItem['course_runs'][0]
 
         self.assertEqual(u'2010', course_run['year'])
-        self.assertEqual(u'Sommer', course_run['semester'])
+        self.assertEqual(u'Summer', course_run['semester'])
         self.assertEqual(u'74', course_run['students_registered'])
         self.assertEqual(u'61', course_run['students_attended'])
         self.assertEqual(u'45', course_run['students_passed'])

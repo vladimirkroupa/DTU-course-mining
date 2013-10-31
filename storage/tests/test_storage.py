@@ -2,16 +2,15 @@ import unittest
 import datetime
 
 from model.department import Department
-from model.course import Course
-from model.course_run import CourseRun
-from test_dataset import COURSES
-from static_storage import StaticStorage
+from storage.tests.test_dataset import COURSES
+from storage.static_storage import StaticStorage
 
 class StorageTest(unittest.TestCase):
 
     maxDiff = None
 
-    test_object = StaticStorage('storage/test_courses.json')
+    #TODO: path
+    test_object = StaticStorage('storage/tests/test_courses.json')
 
     def test_list_departments(self):
         expected_deps = set([Department('27', 'Department of Systems Biology', None), Department('11', 'Department of Civil Engineering', None)])

@@ -2,7 +2,7 @@ import unittest
 from model.course import Course
 from model.course_run import CourseRun
 from model.department import Department
-from json_decoder import JSONDecoder
+from storage.json_decoder import JSONDecoder
 import json
 
 class DecoderTest(unittest.TestCase):
@@ -17,7 +17,7 @@ class DecoderTest(unittest.TestCase):
             "grade_02": "12",
             "grade_00": "9",
             "grade_12": "8",
-            "semester": "Vinter",
+            "semester": "Winter",
             "grade_minus_3": "4",
             "sick": "1",
             "year": "2009",
@@ -25,7 +25,7 @@ class DecoderTest(unittest.TestCase):
             "grade_4": "19"
         },
         {
-            "semester": "Sommer",
+            "semester": "Summer",
             "year": "2006"
         }
     ]"""
@@ -47,7 +47,7 @@ class DecoderTest(unittest.TestCase):
                 },
                 "course_runs": [
                     {
-                        "semester": "Sommer",
+                        "semester": "Summer",
                         "year": "2006"
                     },
                     {
@@ -56,7 +56,7 @@ class DecoderTest(unittest.TestCase):
                         "grade_02": "12",
                         "grade_00": "9",
                         "grade_12": "8",
-                        "semester": "Vinter",
+                        "semester": "Winter",
                         "grade_minus_3": "4",
                         "sick": "1",
                         "year": "2009",
