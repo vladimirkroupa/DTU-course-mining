@@ -5,7 +5,6 @@ from util.scrapy_testutils import fake_response_from_file
 from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import DepartmentItem
 from scraper.items import CourseItem
-from scraper.spiders.page_counter import PageCounter
 
 def data_dir():
     return os.path.join(os.path.dirname(test_directory), 'data')
@@ -62,52 +61,3 @@ class CourseSpiderTest(unittest.TestCase):
         response.meta['department'] = DepartmentItem()
         results = self.spider.parse_course_information_page(response)
         self.assertEqual(len(list(results)), 17 + 5)
-
-    def test_parse_grade_dist_page(self):
-        response = fake_response_from_file(self.course_27002_course_run_page)
-        response.meta['course'] = CourseItem(course_runs = [], code = '27002')
-        response.meta['counter'] = PageCounter(1, 0)
-        course_item = self.spider.course_run_parser.parse_grade_dist_page(response)
-        course_run = course_item['course_runs'][0]
-
-        self.assertEqual(u'2010', course_run['year'])
-        self.assertEqual(u'Summer', course_run['semester'])
-        self.assertEqual(u'74', course_run['students_registered'])
-        self.assertEqual(u'61', course_run['students_attended'])
-        self.assertEqual(u'45', course_run['students_passed'])
-        #self.assertEqual(u'4.7', course_run['exam_average'])
-        self.assertEqual(u'2', course_run['grade_12'])
-        self.assertEqual(u'10', course_run['grade_10'])
-        self.assertEqual(u'21', course_run['grade_7'])
-        self.assertEqual(u'7', course_run['grade_4'])
-        self.assertEqual(u'5', course_run['grade_02'])
-        self.assertEqual(u'8', course_run['grade_00'])
-        self.assertEqual(u'8', course_run['grade_minus_3'])
-        self.assertEqual(u'2', course_run['sick'])
-        self.assertEqual(u'11', course_run['not_shown'])
-
-    def test_parse_evaluation_page(self):
-        response = fake_response_from_file(self.course_27002_evaluation_page)
-        response.meta['course'] = CourseItem(evaluations = [], code = '27002')
-        response.meta['counter'] = PageCounter(0, 1)
-
-        course_item = self.spider.evaluation_parser.parse_evaluation_page(response)
-        evaluation = course_item['evaluations'][0]
-
-        self.assertEqual(u'2011', evaluation['year'])
-        self.assertEqual(u'Summer', evaluation['semester'])
-        self.assertEqual(u'80', evaluation['could_answer'])
-        self.assertEqual(u'40', evaluation['have_answered'])
-        self.assertEqual(u'6', evaluation['did_not_follow'])
-
-        self.assertEqual(u'5', evaluation['performance_much_less'])
-        self.assertEqual(u'9', evaluation['performance_less'])
-        self.assertEqual(u'26', evaluation['performance_same'])
-        self.assertEqual(u'0', evaluation['performance_more'])
-        self.assertEqual(u'0', evaluation['performance_much_more'])
-
-        self.assertEqual(u'0', evaluation['prereq_too_low'])
-        self.assertEqual(u'2', evaluation['prereq_low'])
-        self.assertEqual(u'36', evaluation['prereq_adequate'])
-        self.assertEqual(u'1', evaluation['prereq_high'])
-        self.assertEqual(u'1', evaluation['prereq_too_high'])
