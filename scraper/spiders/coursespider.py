@@ -152,6 +152,7 @@ class CourseSpider(BaseSpider):
                                    total_evaluation_pages = len(eval_links),
                                    log = self.log)
 
+        #TODO: append ?language=en-GB param
         for link in grade_links:
             request = Request(link, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'counter' : page_counter})
             yield request
@@ -201,8 +202,8 @@ class CourseSpider(BaseSpider):
         
         prereq_anwers = parse_prereq_question(table)
 
-        print workload_answers
+        #print workload_answers
 
-        print prereq_anwers
+        #print prereq_anwers
 
 
