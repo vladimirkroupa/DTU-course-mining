@@ -10,6 +10,7 @@ from scraper.items import CourseItem
 from scraper.items import DepartmentItem
 from util.scrapy_utils import *
 from course_run_parser import CourseRunParser
+from evaluation_parser import EvaluationParser
 from page_counter import PageCounter
 
 class CourseSpider(BaseSpider):
@@ -19,6 +20,7 @@ class CourseSpider(BaseSpider):
 
     def __init__(self):
         self.course_run_parser = CourseRunParser(self.log)
+        self.evaluation_parser = EvaluationParser(self.log)
 
     def parse(self, response):
         hxs = HtmlXPathSelector(response)
@@ -67,7 +69,7 @@ class CourseSpider(BaseSpider):
         department = response.meta['department']
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
-        course = CourseItem(course_runs = [], department = department)
+        course = CourseItem(course_runs = [], evaluations = [], department = department) # TODO: move initialization to correct place
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)
@@ -138,15 +140,19 @@ class CourseSpider(BaseSpider):
         return Request(url, callback = self.parse_course_information_page, meta = {'course' : course})
 
     def parse_course_information_page(self, response):
+
+        def set_language(link):
+            return link + "?language=en-GB"
+
         hxs = HtmlXPathSelector(response)
         course = response.meta['course']
         main_td = select_single(hxs, '//td[@class = "ContentMain"]')
 
         grades_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Grades")]')
-        grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
+        grade_links = [set_language(link) for link in grades_table.select('tr[2]/td[2]/a/@href').extract()]
 
         evaluations_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Course evaluations")]')
-        eval_links = evaluations_table.select('tr/td/a/@href').extract()
+        eval_links = [set_language(link) for link in evaluations_table.select('tr/td/a/@href').extract()]
 
         page_counter = PageCounter(total_grade_pages = len(grade_links),
                                    total_evaluation_pages = len(eval_links),
@@ -158,52 +164,6 @@ class CourseSpider(BaseSpider):
             yield request
 
         for link in eval_links:
-            request = Request(link, callback = self.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
+            request = Request(link, callback = self.evaluation_parser.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
             yield request
-
-    def parse_evaluation_page(self, response):
-        course = response.request.meta['course']
-        hxs = HtmlXPathSelector(response)
-
-        stats_table = select_single(hxs, '//table[contains(tr/td/text(), "Statistics")]')
-        could_answer = select_single(stats_table, 'tr[contains(td/text(), "could answer this evaluation form")]/td[1]/b/text()')
-        have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
-        did_not_follow = select_single(stats_table, 'tr[contains(td/text(), "did not follow the course")]/td[1]/b/text()')
-        answers_table = select_single(hxs, '//form/table[2]')
-
-        self.parse_answers_table(answers_table, course)
-
-        #TODO: (//form/table[2]/tbody/tr[contains(td/em/text(), "I think the course description’s prerequisites are")]/following-sibling::tr[count(child::td) = 4]/td[4])
-
-        pass
-
-    def parse_answers_table(self, table, course):
-
-        xpath_templ = 'tr[contains(td/em/text(), "{}")]'
-        nth_xpath = '(following-sibling::tr[count(child::td) = 4]/td[3]/text())[{}]'
-
-        def parse_question(table, question_text):
-            xpath = xpath_templ.format(question_text)
-            question_row = select_single(table, xpath)
-            answer_1 = select_single(question_row, nth_xpath.format(1)).extract()
-            answer_2 = select_single(question_row, nth_xpath.format(2)).extract()
-            answer_3  = select_single(question_row, nth_xpath.format(3)).extract()
-            answer_4 = select_single(question_row, nth_xpath.format(4)).extract()
-            answer_5 = select_single(question_row, nth_xpath.format(5)).extract()
-            return (answer_1, answer_2, answer_3, answer_4, answer_5)
-
-        def parse_workload_question(table):
-            return parse_question(table, 'I think my performance during the course is')
-
-        def parse_prereq_question(table):
-            return parse_question(table, 'I think the course description')
-
-        workload_answers = parse_workload_question(table)
-        
-        prereq_anwers = parse_prereq_question(table)
-
-        #print workload_answers
-
-        #print prereq_anwers
-
 

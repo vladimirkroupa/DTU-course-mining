@@ -1,7 +1,6 @@
 from scrapy.selector import HtmlXPathSelector
 from util.scrapy_utils import *
 from scraper.items import CourseRun
-from collections import defaultdict
 import logging
 import re
 
