@@ -5,6 +5,7 @@ from util.scrapy_testutils import fake_response_from_file
 from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import DepartmentItem
 from scraper.items import CourseItem
+from scraper.spiders.page_counter import PageCounter
 
 def data_dir():
     return os.path.join(os.path.dirname(test_directory), 'data')
@@ -65,9 +66,9 @@ class CourseSpiderTest(unittest.TestCase):
     def test_parse_grade_dist_page(self):
         response = fake_response_from_file(self.course_27002_course_run_page)
         response.meta['course'] = CourseItem(course_runs = [], code = '27002')
-        response.meta['total_grade_pages'] = 1
-        courseItem = self.spider.course_run_parser.parse_grade_dist_page(response)
-        course_run = courseItem['course_runs'][0]
+        response.meta['counter'] = PageCounter(1, 0)
+        course_item = self.spider.course_run_parser.parse_grade_dist_page(response)
+        course_run = course_item['course_runs'][0]
 
         self.assertEqual(u'2010', course_run['year'])
         self.assertEqual(u'Summer', course_run['semester'])
@@ -88,7 +89,7 @@ class CourseSpiderTest(unittest.TestCase):
     def test_parse_evaluation_page(self):
         response = fake_response_from_file(self.course_27002_evaluation_page)
         response.meta['course'] = CourseItem()
-        response.meta['total_eval_pages'] = 1
-        self.spider.parse_evaluation_page(response)
-
+        response.meta['counter'] = PageCounter(0, 1)
+        course = self.spider.parse_evaluation_page(response)
+        print course
         pass

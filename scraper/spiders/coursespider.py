@@ -10,6 +10,7 @@ from scraper.items import CourseItem
 from scraper.items import DepartmentItem
 from util.scrapy_utils import *
 from course_run_parser import CourseRunParser
+from page_counter import PageCounter
 
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
@@ -140,19 +141,24 @@ class CourseSpider(BaseSpider):
         hxs = HtmlXPathSelector(response)
         course = response.meta['course']
         main_td = select_single(hxs, '//td[@class = "ContentMain"]')
+
         grades_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Grades")]')
         grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
-        grade_page_no = 0
-        for link in grade_links:
-            grade_page_no += 1
-            yield Request(link, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links)})
 
         evaluations_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Course evaluations")]')
         eval_links = evaluations_table.select('tr/td/a/@href').extract()
-        eval_page_no = 0
+
+        page_counter = PageCounter(total_grade_pages = len(grade_links),
+                                   total_evaluation_pages = len(eval_links),
+                                   log = self.log)
+
+        for link in grade_links:
+            request = Request(link, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'counter' : page_counter})
+            yield request
+
         for link in eval_links:
-            eval_page_no += 1
-            yield Request(link, callback = self.parse_evaluation_page, meta = {'course' : course, 'total_eval_pages' : len(eval_links)})
+            request = Request(link, callback = self.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
+            yield request
 
     def parse_evaluation_page(self, response):
         course = response.request.meta['course']
@@ -167,6 +173,7 @@ class CourseSpider(BaseSpider):
         self.parse_answers_table(answers_table, course)
 
         #TODO: (//form/table[2]/tbody/tr[contains(td/em/text(), "I think the course description’s prerequisites are")]/following-sibling::tr[count(child::td) = 4]/td[4])
+
         pass
 
     def parse_answers_table(self, table, course):

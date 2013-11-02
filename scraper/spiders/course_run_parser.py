@@ -9,7 +9,6 @@ class CourseRunParser():
 
     def __init__(self, log):
         self.log = log
-        self.course_grades_parsed = defaultdict(int)
 
     def parse_grade_dist_page(self, response):
         course = response.request.meta['course']
@@ -21,16 +20,13 @@ class CourseRunParser():
         self.process_grade_table(grades_table, course_run)
         self.process_course_run_heading(h2_value, course_run)
 
-        self.log(course_run)
         course['course_runs'].append(course_run)
 
         course_code = course['code']
-        self.course_grades_parsed[course_code] += 1
 
-        pages_parsed = self.course_grades_parsed[course_code]
-        total_pages = response.meta['total_grade_pages']
-        self.log("Scraped {} grade pages of {} total for course {}.".format(pages_parsed, total_pages, course_code))
-        if pages_parsed == total_pages:
+        page_counter = response.request.meta['counter']
+        page_counter.count_grade_page(course_code)
+        if page_counter.course_processed(course_code):
             return course
 
     def process_grade_table(self, grades_table, course_run):
