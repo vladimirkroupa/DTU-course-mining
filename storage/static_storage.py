@@ -24,7 +24,6 @@ class StaticStorage(Storage):
 
             department = self.departments[dep_code]
             department.add_course(course)
-        print len(courses)
 
     def list_departments(self):
         return self.departments.values()
