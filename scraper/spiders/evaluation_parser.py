@@ -65,11 +65,12 @@ class EvaluationParser():
 
     def parse_answers_table(self, table, evaluation):
 
-        xpath_templ = 'tr[contains(td/em/text(), "{}")]'
+        xpath_templ = 'tr[td/em/text()[contains(., "{}") or contains(., "{}")]]'
+        #xpath_templ = 'tr[contains(td/em/text(), "{}")]'
         nth_xpath = '(following-sibling::tr[count(child::td) = 4]/td[3]/text())[{}]'
 
-        def parse_question(table, question_text):
-            xpath = xpath_templ.format(question_text)
+        def parse_question(table, question_text, alternate_text):
+            xpath = xpath_templ.format(question_text, alternate_text)
             question_row = select_single(table, xpath)
             answer_1 = select_single(question_row, nth_xpath.format(1)).extract()
             answer_2 = select_single(question_row, nth_xpath.format(2)).extract()
@@ -79,10 +80,10 @@ class EvaluationParser():
             return (answer_1, answer_2, answer_3, answer_4, answer_5)
 
         def parse_workload_question(table):
-            return parse_question(table, 'I think my performance during the course is')
+            return parse_question(table, 'I think my performance during the course is', 'Compared with this, I spent:')
 
         def parse_prereq_question(table):
-            return parse_question(table, 'I think the course description')
+            return parse_question(table, 'I think the course description', 'The prerequisites listed in the course description were')
 
         workload_answers = parse_workload_question(table)
         prereq_answers = parse_prereq_question(table)

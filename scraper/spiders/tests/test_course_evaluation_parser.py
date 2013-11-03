@@ -16,6 +16,7 @@ class CourseEvaluationParserTest(unittest.TestCase):
         self.course_27002_evaluation_page = os.path.join(data_dir(), '27002_evaluation.html')
         self.evaluation_did_not_follow_missing = os.path.join(data_dir(), 'Evaluation_no_dnf.html')
         self.evaluation_3_week_course = os.path.join(data_dir(), 'Evaluation_3_week_course.html')
+        self.evaluation_two_text_nodes = os.path.join(data_dir(), 'Evaluation_old_questions.html')
 
 
     def test_parse_evaluation_page(self):
@@ -93,5 +94,30 @@ class CourseEvaluationParserTest(unittest.TestCase):
         self.assertEqual(u'0', evaluation['prereq_too_low'])
         self.assertEqual(u'0', evaluation['prereq_low'])
         self.assertEqual(u'4', evaluation['prereq_adequate'])
+        self.assertEqual(u'0', evaluation['prereq_high'])
+        self.assertEqual(u'0', evaluation['prereq_too_high'])
+
+    def test_parse_evaluation_two_text_nodes_questions(self):
+        response = fake_response_from_file(self.evaluation_two_text_nodes)
+        response.meta['course'] = CourseItem(evaluations = [], code = '11B01')
+        response.meta['counter'] = PageCounter(0, 1)
+
+        course_item = self.evaluation_parser.parse_evaluation_page(response)
+        evaluation = course_item['evaluations'][0]
+
+        self.assertEqual(u'2007', evaluation['year'])
+        self.assertEqual(u'Summer', evaluation['semester'])
+        self.assertEqual(u'24', evaluation['could_answer'])
+        self.assertEqual(u'10', evaluation['have_answered'])
+
+        self.assertEqual(u'0', evaluation['performance_much_less'])
+        self.assertEqual(u'3', evaluation['performance_less'])
+        self.assertEqual(u'6', evaluation['performance_same'])
+        self.assertEqual(u'1', evaluation['performance_more'])
+        self.assertEqual(u'0', evaluation['performance_much_more'])
+
+        self.assertEqual(u'0', evaluation['prereq_too_low'])
+        self.assertEqual(u'0', evaluation['prereq_low'])
+        self.assertEqual(u'0', evaluation['prereq_adequate'])
         self.assertEqual(u'0', evaluation['prereq_high'])
         self.assertEqual(u'0', evaluation['prereq_too_high'])
