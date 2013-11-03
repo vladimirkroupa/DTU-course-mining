@@ -53,14 +53,14 @@ class CourseRunParser():
             groups = match.groups()
             return single_elem(groups)
 
-        xpath = '(//table)[1]/tr[{}]/td[2]/text()'
-        registered = select_single(stats_table, xpath.format(1)).extract()
-        present = select_single(stats_table, xpath.format(2)).extract()
+        xpath = '(//table)[1]/tr[td/text()[contains(., "{}")]]/td[2]/text()'
+        registered = select_single(stats_table, xpath.format('Registered for exam')).extract()
+        present = select_single(stats_table, xpath.format('Present')).extract()
         course_run['students_registered'] = registered.strip()
         course_run['students_attended'] = present.strip()
-        if not not_enough_grades:
-            passed = select_single(stats_table, xpath.format(3)).extract()
-            passed_no = parse_passed(passed)
+        passed = stats_table.select(xpath.format('Passed')).extract()
+        if passed:
+            passed_no = parse_passed(passed[0])
             course_run['students_passed'] = passed_no
 
     def process_grade_table(self, grades_table, course_run):
