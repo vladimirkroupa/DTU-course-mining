@@ -57,7 +57,7 @@ class CourseSpider(BaseSpider):
         for onclick in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr[2]/td/table/tr[@id]/@onclick'):
             course_url = self.extract_course_url(onclick, base_url)
             self.log("Extracted course URL: " + course_url)
-            course_url_en = course_url + '?menulanguage=en-GB'
+            course_url_en = set_url_param(course_url, 'language', 'en-GB')
             yield Request(course_url_en, callback = self.parse_course, meta = {'department' : department})
 
     def extract_course_url(self, onclick, base_url):
@@ -141,29 +141,27 @@ class CourseSpider(BaseSpider):
 
     def parse_course_information_page(self, response):
 
-        def set_language(link):
-            return link + "?language=en-GB"
-
         hxs = HtmlXPathSelector(response)
         course = response.meta['course']
         main_td = select_single(hxs, '//td[@class = "ContentMain"]')
 
         grades_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Grades")]')
-        grade_links = [set_language(link) for link in grades_table.select('tr[2]/td[2]/a/@href').extract()]
+        grade_urls = grades_table.select('tr[2]/td[2]/a/@href').extract()
 
         evaluations_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Course evaluations")]')
-        eval_links = [set_language(link) for link in evaluations_table.select('tr/td/a/@href').extract()]
+        eval_urls = evaluations_table.select('tr/td/a/@href').extract()
 
-        page_counter = PageCounter(total_grade_pages = len(grade_links),
-                                   total_evaluation_pages = len(eval_links),
+        page_counter = PageCounter(total_grade_pages = len(grade_urls),
+                                   total_evaluation_pages = len(eval_urls),
                                    log = self.log)
 
-        #TODO: append ?language=en-GB param
-        for link in grade_links:
-            request = Request(link, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'counter' : page_counter})
+        for url in grade_urls:
+            url_lang = set_url_param(url, 'language', 'en-GB')
+            request = Request(url_lang, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'counter' : page_counter})
             yield request
 
-        for link in eval_links:
-            request = Request(link, callback = self.evaluation_parser.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
+        for url in eval_urls:
+            url_lang = set_url_param(url, 'language' ,'en-GB')
+            request = Request(url_lang, callback = self.evaluation_parser.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
             yield request
 
