@@ -42,6 +42,11 @@ class EvaluationParser():
         def parse_year(year_part):
             return u"20" + year_part
 
+        #last_token = heading_str.split()[-1]
+        #if len(last_token) == 2:
+#            parse_4-week_period:
+#        elif len(last_token) == 3:
+
         code = heading_str.split()[-1]
         regex = re.compile("""([EF])(\d\d)""")
         match = regex.match(code)
@@ -56,7 +61,11 @@ class EvaluationParser():
         xpath = 'tr[contains(td/text(), "{}")]/td[1]/b/text()'
         evaluation['could_answer'] = select_single(stats_table, xpath.format("could answer this evaluation form")).extract()
         evaluation['have_answered'] = select_single(stats_table, xpath.format("have answered this evaluation form")).extract()
-        evaluation['did_not_follow'] = select_single(stats_table, xpath.format("did not follow the course")).extract()
+        did_not_follow = stats_table.select(xpath.format("did not follow the course")).extract()
+        if len(did_not_follow) == 1:
+            evaluation['did_not_follow'] = did_not_follow[0]
+        else:
+            evaluation['did_not_follow'] = u'0'
 
     def parse_answers_table(self, table, evaluation):
 

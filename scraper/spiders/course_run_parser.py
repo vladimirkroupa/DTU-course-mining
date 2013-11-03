@@ -54,7 +54,7 @@ class CourseRunParser():
             return len(tables) == 2
 
         def not_enough_grades(grades_table):
-            xpath = 'tr/td/text()[contains(., "Fordelingen vises ikke da tre eller")]'
+            xpath = 'tr/td/text()[contains(., "No exam results are shown")]'
             result = grades_table.select(xpath)
             return len(result) == 1
 
