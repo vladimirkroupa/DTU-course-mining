@@ -15,6 +15,7 @@ class CourseRunParserTest(unittest.TestCase):
     def setUp(self):
         self.course_run_parser = CourseRunParser(log = CourseSpider().log)
         self.course_27002_course_run_page = os.path.join(data_dir(), '27002_course_run_summer_2010.html')
+        self.course_run_two_scales = os.path.join(data_dir(), 'Course_run_two_scales.html')
 
     def test_parse_grade_dist_page(self):
         response = fake_response_from_file(self.course_27002_course_run_page)
@@ -38,3 +39,26 @@ class CourseRunParserTest(unittest.TestCase):
         self.assertEqual(u'8', course_run['grade_minus_3'])
         self.assertEqual(u'2', course_run['sick'])
         self.assertEqual(u'11', course_run['not_shown'])
+
+    def test_parse_evaluation_two_grade_scales(self):
+        response = fake_response_from_file(self.course_run_two_scales)
+        response.meta['course'] = CourseItem(course_runs = [], code = '11B12')
+        response.meta['counter'] = PageCounter(1, 0)
+
+        course_item = self.course_run_parser.parse_grade_dist_page(response)
+        course_run = course_item['course_runs'][0]
+
+        self.assertEqual(u'2004', course_run['year'])
+        self.assertEqual(u'Winter', course_run['semester'])
+        self.assertEqual(u'24', course_run['students_registered'])
+        self.assertEqual(u'18', course_run['students_attended'])
+        self.assertEqual(u'18', course_run['students_passed'])
+        #self.assertEqual(u'4.7', course_run['exam_average'])
+        self.assertEqual(u'0', course_run['grade_12'])
+        self.assertEqual(u'11', course_run['grade_10'])
+        self.assertEqual(u'7', course_run['grade_7'])
+        self.assertEqual(u'0', course_run['grade_4'])
+        self.assertEqual(u'0', course_run['grade_02'])
+        self.assertEqual(u'0', course_run['grade_00'])
+        self.assertEqual(u'0', course_run['grade_minus_3'])
+        self.assertEqual(u'6', course_run['not_shown'])

@@ -78,11 +78,7 @@ class CourseRunParser():
             self.log('Encountered course run with no grade distribution.')
             return
 
-        if has_13_grades(grades_table):
-            self.log('Encountered course run with 13 grade distribution.')
-            return
-
-        inner_table = select_single(grades_table, 'tr/td/table')
+        inner_table = select_single(grades_table, '(tr/td/table)[1]')
         for row in inner_table.select('tr')[1:]:
             header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
             value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
