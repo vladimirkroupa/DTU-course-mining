@@ -1,3 +1,6 @@
+from urllib import urlencode
+from urlparse import parse_qs, urlsplit, urlunsplit
+
 class PageStructureException(Exception):
     pass
 
@@ -20,3 +23,12 @@ def check_len(list, item_count):
 def single_elem(list):
     check_len(list, 1)
     return list[0]
+
+def set_url_param(url, param_name, param_value):
+    scheme, netloc, path, query_string, fragment = urlsplit(url)
+    query_params = parse_qs(query_string)
+
+    query_params[param_name] = [param_value]
+    new_query_string = urlencode(query_params, doseq=True)
+
+    return urlunsplit((scheme, netloc, path, new_query_string, fragment))
