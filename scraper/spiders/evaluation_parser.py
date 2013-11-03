@@ -36,21 +36,17 @@ class EvaluationParser():
                 return u'Winter'
             elif sem_part == u'F':
                 return u'Summer'
+            elif sem_part == u'Jan':
+                return u'January'
             else:
                 raise Exception(u'Unknown semester code {}'.format(sem_part))
 
         def parse_year(year_part):
             return u"20" + year_part
 
-        #last_token = heading_str.split()[-1]
-        #if len(last_token) == 2:
-#            parse_4-week_period:
-#        elif len(last_token) == 3:
-
-        code = heading_str.split()[-1]
-        regex = re.compile("""([EF])(\d\d)""")
-        match = regex.match(code)
-        groups = match.groups()
+        regex = re.compile("""(E|F|Jan)(?: )?(\d\d)""")
+        r = regex.search(heading_str)
+        groups = r.groups()
         check_len(groups, 2)
         semester_part, year_part = groups
 
