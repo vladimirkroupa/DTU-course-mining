@@ -17,8 +17,14 @@ class CourseRunParser():
         h2_value = select_single(hxs, '//form[@id="karsumForm"]/h2/text()').extract().strip().encode('utf-8')
 
         course_run = CourseRun()
-        self.process_stats_table(stats_table, course_run)
-        self.process_grade_table(grades_table, course_run)
+
+        not_enough_grades = self.not_enough_grades(grades_table)
+        if not_enough_grades:
+            self.log(u'Encountered course {} run with no grade distribution.'.format(course['code']))
+
+        self.process_stats_table(stats_table, course_run, not_enough_grades)
+        if not not_enough_grades:
+            self.process_grade_table(grades_table, course_run)
         self.process_course_run_heading(h2_value, course_run)
 
         course['course_runs'].append(course_run)
@@ -29,7 +35,17 @@ class CourseRunParser():
         if page_counter.course_processed(course_code):
             return course
 
-    def process_stats_table(self, stats_table, course_run):
+    def has_13_grades(self, grades_table):
+        tables = grades_table.select('tr/td/table')
+        return len(tables) == 2
+
+    def not_enough_grades(self, grades_table):
+        xpath = 'tr/td/text()[contains(., "No exam results are shown")]'
+        result = grades_table.select(xpath)
+        return len(result) == 1
+
+
+    def process_stats_table(self, stats_table, course_run, not_enough_grades = False):
 
         def parse_passed(passed_str):
             regex = re.compile("""(?:\s*)(\d+)""")
@@ -40,23 +56,14 @@ class CourseRunParser():
         xpath = '(//table)[1]/tr[{}]/td[2]/text()'
         registered = select_single(stats_table, xpath.format(1)).extract()
         present = select_single(stats_table, xpath.format(2)).extract()
-        passed = select_single(stats_table, xpath.format(3)).extract()
-        passed_no = parse_passed(passed)
-
         course_run['students_registered'] = registered.strip()
         course_run['students_attended'] = present.strip()
-        course_run['students_passed'] = passed_no
+        if not not_enough_grades:
+            passed = select_single(stats_table, xpath.format(3)).extract()
+            passed_no = parse_passed(passed)
+            course_run['students_passed'] = passed_no
 
     def process_grade_table(self, grades_table, course_run):
-
-        def has_13_grades(grades_table):
-            tables = grades_table.select('tr/td/table')
-            return len(tables) == 2
-
-        def not_enough_grades(grades_table):
-            xpath = 'tr/td/text()[contains(., "No exam results are shown")]'
-            result = grades_table.select(xpath)
-            return len(result) == 1
 
         def process_grade_table_line(header, value, course_run):
             item_fields = {'12' : 'grade_12',
@@ -73,10 +80,6 @@ class CourseRunParser():
                 self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
             field = item_fields[header]
             course_run[field] = value
-
-        if not_enough_grades(grades_table):
-            self.log('Encountered course run with no grade distribution.')
-            return
 
         inner_table = select_single(grades_table, '(tr/td/table)[1]')
         for row in inner_table.select('tr')[1:]:
