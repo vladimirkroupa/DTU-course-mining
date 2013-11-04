@@ -2,6 +2,10 @@ from model.course import Course
 from model.course_run import CourseRun
 from model.department import Department
 from model.evaluation import Evaluation
+from util.dict_util import tuple_to_dict
+
+def tuple_to_intensity_dict(tuple):
+    tuple_to_dict((1, 2, 3, 4, 5), tuple)
 
 COURSE_EVALUATIONS = [
     Evaluation(
@@ -10,8 +14,8 @@ COURSE_EVALUATIONS = [
         could_answer = 174,
         have_answered = 61,
         did_not_follow = 1,
-        performance_vector = (4, 11, 37, 8, 1),
-        prereq_vector = (1, 3, 47, 9, 1)
+        performance_scale = tuple_to_intensity_dict((4, 11, 37, 8, 1)),
+        prereq_scale = tuple_to_intensity_dict((1, 3, 47, 9, 1))
     ),
     Evaluation(
         year = 2011,
@@ -19,8 +23,8 @@ COURSE_EVALUATIONS = [
         could_answer = 80,
         have_answered = 40,
         did_not_follow = 6,
-        performance_vector = (5, 9, 26, 0, 0),
-        prereq_vector = (0, 2, 36, 1, 1)
+        performance_scale = tuple_to_intensity_dict((5, 9, 26, 0, 0)),
+        prereq_scale = tuple_to_intensity_dict((0, 2, 36, 1, 1))
     )
 ]
 

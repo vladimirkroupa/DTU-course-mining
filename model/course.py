@@ -54,6 +54,15 @@ class Course:
         key = (year, semester)
         return self.evaluations.get(key)
 
+    def list_years_run(self):
+        """
+        :return: set of all years when the course was run.
+        """
+        years = set()
+        for year, semester in self.course_runs.keys():
+            years.add(year)
+        return years
+
     def __repr__(self):
         templ = u"{0}: {2} ({3}), taught in {1}, evaluation: {4}, ects credits: {5}, course type: {6}, department: {8}, {9} course runs: {7}, evaluations: {8}"
         result = templ.format(self.code, self.language, self.title_en, self.title_da, self.evaluation_type,
