@@ -65,7 +65,7 @@ class JSONDecoder():
         elif semester == 'Summer':
             return 'F'
         elif semester == 'January':
-            return semester
+            return 'Jan'
         raise Exception("Unknown semester value: " + semester)
 
     def decode_department(self, department_json):
