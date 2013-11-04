@@ -8,6 +8,6 @@ class CourseTest(unittest.TestCase):
         self.course = COURSES[0]
 
     def test_list_years_run(self):
-        expected = set(2010, 2011)
+        expected = set([2010, 2011])
         actual = self.course.list_years_run()
         self.assertEquals(expected, actual)

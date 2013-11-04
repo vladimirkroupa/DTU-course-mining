@@ -5,7 +5,8 @@ from model.evaluation import Evaluation
 from util.dict_util import tuple_to_dict
 
 def tuple_to_intensity_dict(tuple):
-    tuple_to_dict((1, 2, 3, 4, 5), tuple)
+    return tuple_to_dict((1, 2, 3, 4, 5), tuple)
+
 
 COURSE_EVALUATIONS = [
     Evaluation(
@@ -71,7 +72,7 @@ COURSES = [
         title_en = u'Life Science',
         title_da = u'Biovidenskab',
         evaluation_type = u'7 step scale',
-        ects_credits = 5,
+        ects_credits = 5.0,
         course_type = u'BSc',
         course_runs = COURSE_RUNS,
         evaluations = COURSE_EVALUATIONS,
