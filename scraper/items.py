@@ -18,6 +18,7 @@ class CourseItem(Item):
     course_type = Field()
     department = Field()
     course_runs = Field()
+    evaluations = Field()
 
 class CourseRun(Item):
     year = Field()
@@ -29,7 +30,6 @@ class CourseRun(Item):
     exam_average = Field()
     grade_12 = Field()
     grade_10 = Field()
-    grade_10 = Field()
     grade_7 = Field()
     grade_4 = Field()
     grade_02 = Field()
@@ -38,22 +38,22 @@ class CourseRun(Item):
     not_shown = Field()
     sick = Field()
 
-class Evaluation(Item):
+class EvaluationItem(Item):
     year = Field()
     # semesters + 3 week period: E, F, June, January
     semester = Field()
-    actual_answers = Field()
-    possible_answers = Field()
+    could_answer = Field()
+    have_answered = Field()
     did_not_follow = Field()
-
-    prerequisites_too_low = Field()
-    prerequisites_low = Field()
-    prerequisites_normal = Field()
-    prerequisites_high = Field()
-    prerequisites_too_high = Field()
 
     performance_much_less = Field()
     performance_less = Field()
-    performance_normal = Field()
+    performance_same = Field()
     performance_more = Field()
     performance_much_more = Field()
+
+    prereq_too_low = Field()
+    prereq_low = Field()
+    prereq_adequate = Field()
+    prereq_high = Field()
+    prereq_too_high = Field()

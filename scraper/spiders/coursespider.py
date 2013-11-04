@@ -7,42 +7,20 @@ from scrapy.utils.response import get_base_url
 from urlparse import urljoin
 import re
 from scraper.items import CourseItem
-from scraper.items import CourseRun
 from scraper.items import DepartmentItem
-import logging
-from collections import defaultdict
-
-#TODO: need to move out everything except the class itself
-
-class PageStructureException(Exception):
-    pass
-
-
-def select_single(selector, xpath):
-    return select(selector, xpath, expected = 1)[0]
-
-def select(selector, xpath, expected = None):
-    result = selector.select(xpath)
-    if expected is not None and len(result) != expected:
-        msg = "Expected {0} result(s), got {1}. XPath expression: {2} Selector content: {3}".format(expected, len(result), xpath, selector.extract().encode('utf-8'))
-        raise PageStructureException(msg)
-    return result
-
-def check_len(list, item_count):
-    if len(list) != item_count:
-        raise PageStructureException("Expected {0} element(s), got: {1}".format(item_count, len(list)))
-    return list
-
-def single_elem(list):
-    check_len(list, 1)
-    return list[0]
-
+from util.scrapy_utils import *
+from course_run_parser import CourseRunParser
+from evaluation_parser import EvaluationParser
+from page_counter import PageCounter
 
 class CourseSpider(BaseSpider):
     name = 'CourseSpider'
     allowed_domains = ['dtu.dk']
     start_urls = ['http://www.kurser.dtu.dk/2013-2014/index.aspx?menulanguage=en-GB']
-    course_grades_parsed = defaultdict(int)
+
+    def __init__(self):
+        self.course_run_parser = CourseRunParser(self.log)
+        self.evaluation_parser = EvaluationParser(self.log)
 
     def parse(self, response):
         hxs = HtmlXPathSelector(response)
@@ -79,7 +57,7 @@ class CourseSpider(BaseSpider):
         for onclick in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr[2]/td/table/tr[@id]/@onclick'):
             course_url = self.extract_course_url(onclick, base_url)
             self.log("Extracted course URL: " + course_url)
-            course_url_en = course_url + '?menulanguage=en-GB'
+            course_url_en = set_url_param(course_url, 'language', 'en-GB')
             yield Request(course_url_en, callback = self.parse_course, meta = {'department' : department})
 
     def extract_course_url(self, onclick, base_url):
@@ -91,7 +69,7 @@ class CourseSpider(BaseSpider):
         department = response.meta['department']
         hxs = HtmlXPathSelector(response)
         main_div = select_single(hxs, '//div[@class = "CourseViewer"]/div[@id = "pagecontents"]')
-        course = CourseItem(course_runs = [], department = department)
+        course = CourseItem(course_runs = [], evaluations = [], department = department) # TODO: move initialization to correct place
         self.process_heading(main_div, course)
         self.process_first_table(main_div, course)
         self.process_second_table(main_div, course)
@@ -162,110 +140,28 @@ class CourseSpider(BaseSpider):
         return Request(url, callback = self.parse_course_information_page, meta = {'course' : course})
 
     def parse_course_information_page(self, response):
+
         hxs = HtmlXPathSelector(response)
         course = response.meta['course']
         main_td = select_single(hxs, '//td[@class = "ContentMain"]')
+
         grades_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Grades")]')
-        grade_links = grades_table.select('tr[2]/td[2]/a/@href').extract()
-        grade_page_no = 0
-        for link in grade_links:
-            grade_page_no += 1
-            yield Request(link, callback = self.parse_grade_dist_page, meta = {'course' : course, 'total_grade_pages' : len(grade_links)})
+        grade_urls = grades_table.select('tr[2]/td[2]/a/@href').extract()
 
         evaluations_table = select_single(main_td, '//table[contains(tr/td/b/text(), "Course evaluations")]')
-        eval_links = evaluations_table.select('tr/td/a/@href').extract()
-        eval_page_no = 0
-        for link in eval_links:
-            eval_page_no += 1
-            yield Request(link, callback = self.parse_evaluation_page, meta = {'course' : course, 'total_eval_pages' : len(eval_links)})
+        eval_urls = evaluations_table.select('tr/td/a/@href').extract()
 
-    def parse_evaluation_page(self, response):
-        course = response.request.meta['course']
-        hxs = HtmlXPathSelector(response)
+        page_counter = PageCounter(total_grade_pages = len(grade_urls),
+                                   total_evaluation_pages = len(eval_urls),
+                                   log = self.log)
 
-        stats_table = select_single(hxs, '//table[contains(tr/td/text(), "Statistics")]')
-        could_answer = select_single(stats_table, 'tr[contains(td/text(), "could answer this evaluation form")]/td[1]/b/text()')
-        have_answered = select_single(stats_table, 'tr[contains(td/text(), "have answered this evaluation form")]/td[1]/b/text()')
-        answers_table = select_single(hxs, '//form/table[2]')
+        for url in grade_urls:
+            url_lang = set_url_param(url, 'language', 'en-GB')
+            request = Request(url_lang, callback = self.course_run_parser.parse_grade_dist_page, meta = {'course' : course, 'counter' : page_counter})
+            yield request
 
-        pass
+        for url in eval_urls:
+            url_lang = set_url_param(url, 'language' ,'en-GB')
+            request = Request(url_lang, callback = self.evaluation_parser.parse_evaluation_page, meta = {'course' : course, 'counter' : page_counter})
+            yield request
 
-    def parse_answers_table(self, table):
-
-
-    def parse_grade_dist_page(self, response):
-        course = response.request.meta['course']
-        hxs = HtmlXPathSelector(response)
-        grades_table = select_single(hxs, '//table[2]')
-        h2_value = select_single(hxs, '//form[@id="karsumForm"]/h2/text()').extract().strip().encode('utf-8')
-
-        course_run = CourseRun()
-        self.process_grade_table(grades_table, course_run)
-        self.process_course_run_heading(h2_value, course_run)
-
-        self.log(course_run)
-        course['course_runs'].append(course_run)
-
-        course_code = course['code']
-        self.course_grades_parsed[course_code] += 1
-
-        pages_parsed = self.course_grades_parsed[course_code]
-        total_pages = response.meta['total_grade_pages']
-        self.log("Scraped {} grade pages of {} total for course {}.".format(pages_parsed, total_pages, course_code))
-        if pages_parsed == total_pages:
-            return course
-
-    def process_grade_table(self, grades_table, course_run):
-
-        def has_13_grades(grades_table):
-            tables = grades_table.select('tr/td/table')
-            return len(tables) == 2
-
-        def not_enough_grades(grades_table):
-            xpath = 'tr/td/text()[contains(., "Fordelingen vises ikke da tre eller")]'
-            result = grades_table.select(xpath)
-            return len(result) == 1
-
-        def process_grade_table_line(header, value, course_run):
-            item_fields = {'12' : 'grade_12',
-                           '10': 'grade_10',
-                           '7': 'grade_7',
-                           '4': 'grade_4',
-                           '02': 'grade_02',
-                           '00': 'grade_00',
-                           '-3': 'grade_minus_3',
-                           'Syg': 'sick',
-                           'Ej mødt': 'not_shown'}
-
-            if header not in item_fields:
-                self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
-            field = item_fields[header]
-            course_run[field] = value
-            #self.log('Extracted occurrence of grade {}: {}'.format(header, value))
-
-        if not_enough_grades(grades_table):
-            self.log('Encountered course run with no grade distribution.')
-            return
-
-        if has_13_grades(grades_table):
-            self.log('Encountered course run with 13 grade distribution.')
-            return
-
-        inner_table = select_single(grades_table, 'tr/td/table')
-        for row in inner_table.select('tr')[1:]:
-            header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
-            value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
-            process_grade_table_line(header, value, course_run)
-
-    def process_course_run_heading(self, heading_text, course_run):
-        self.log('Going to parse course run heading: [{}]'.format(heading_text))
-        regex = re.compile("""(?:.*)(Sommer|Vinter)\s(\d\d\d\d)$""")
-        match = regex.match(heading_text)
-        groups = match.groups()
-        check_len(groups, 2)
-        semester, year = groups
-        course_run['year'] = year
-        course_run['semester'] = semester
-
-    def process_course_run_info(self, grade):
-        pass
