@@ -5,9 +5,7 @@ from util.scrapy_testutils import fake_response_from_file
 from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import DepartmentItem
 from scraper.items import CourseItem
-
-def data_dir():
-    return os.path.join(os.path.dirname(test_directory), 'data')
+from scraper.spiders.tests.data import data_dir
 
 class CourseSpiderTest(unittest.TestCase):
 

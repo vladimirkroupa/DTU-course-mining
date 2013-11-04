@@ -6,9 +6,7 @@ from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import CourseItem
 from scraper.spiders.page_counter import PageCounter
 from scraper.spiders.coursespider import CourseSpider
-
-def data_dir():
-    return os.path.join(os.path.dirname(test_directory), 'data')
+from scraper.spiders.tests.data import data_dir
 
 class CourseRunParserTest(unittest.TestCase):
 

@@ -1,16 +1,19 @@
 import unittest
 import datetime
 
+import os
 from model.department import Department
-from storage.tests.test_dataset import COURSES
+from storage.tests.data.test_dataset import COURSES
 from storage.static_storage import StaticStorage
+from storage.tests.data import data_dir
 
 class StorageTest(unittest.TestCase):
 
     maxDiff = None
 
-    #TODO: path
-    test_object = StaticStorage('storage/tests/test_courses.json')
+    def setUp(self):
+        data_file = os.path.join(data_dir(), 'test_courses.json')
+        self.test_object = StaticStorage(data_file)
 
     def test_list_departments(self):
         expected_deps = set([Department('27', 'Department of Systems Biology', None), Department('11', 'Department of Civil Engineering', None)])
