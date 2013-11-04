@@ -5,7 +5,7 @@ import os
 from storage import __file__ as json_data_dir
 
 def storage_data_file():
-    return os.path.join(os.path.join(os.path.dirname(json_data_dir), '..'), 'courses.json')
+    return os.path.join(os.path.dirname(json_data_dir), '..', 'data', 'courses.json')
 
 class StaticStorage(Storage):
     """Simple implementation using the static courses.json file created by Scrapy.
