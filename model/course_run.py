@@ -6,7 +6,7 @@ class CourseRun:
 
         self.grade_scale = {}
 
-        def init_grade_scale(self, grade_scale):
+        def convert_grade_scale(self, grade_scale):
             self.grade_scale['12'] = grade_scale.get('12', 0)
             self.grade_scale['10'] = grade_scale.get('10', 0)
             self.grade_scale['7'] = grade_scale.get('7', 0)
@@ -23,7 +23,7 @@ class CourseRun:
         self.students_passed = students_passed
         self.not_shown = not_shown
         self.sick = sick
-        init_grade_scale(self, grade_scale)
+        convert_grade_scale(self, grade_scale)
 
     def exam_average(self):
         pass
