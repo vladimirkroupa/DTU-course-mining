@@ -1,12 +1,17 @@
 from storage import Storage
 from json_decoder import JSONDecoder
 import json
+import os
+from storage import __file__ as json_data_dir
+
+def storage_data_file():
+    return os.path.join(os.path.join(os.path.dirname(json_data_dir), '..'), 'courses.json')
 
 class StaticStorage(Storage):
     """Simple implementation using the static courses.json file created by Scrapy.
     """
 
-    def __init__(self, file_to_use = 'scraper/courses.json'):
+    def __init__(self, file_to_use = storage_data_file()):
         self.departments = {}
         json_file = open(file_to_use)
         json_data = json.load(json_file)
