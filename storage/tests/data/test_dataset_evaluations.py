@@ -11,7 +11,7 @@ def tuple_to_intensity_dict(tuple):
 COURSE_EVALUATIONS = [
     Evaluation(
         year = 2010,
-        semester = u'E',
+        semester = 'E',
         could_answer = 174,
         have_answered = 61,
         did_not_follow = 1,
@@ -20,7 +20,7 @@ COURSE_EVALUATIONS = [
     ),
     Evaluation(
         year = 2011,
-        semester = u'F',
+        semester = 'F',
         could_answer = 80,
         have_answered = 40,
         did_not_follow = 6,
@@ -32,7 +32,7 @@ COURSE_EVALUATIONS = [
 COURSE_RUNS = [
     CourseRun(
         year = 2010,
-        semester = u'E',
+        semester = 'E',
         students_registered = 169,
         students_attended = 159,
         students_passed = 141,
@@ -48,7 +48,7 @@ COURSE_RUNS = [
     ),
     CourseRun(
         year = 2011,
-        semester = u'F',
+        semester = 'F',
         students_registered = 80,
         students_attended = 66,
         students_passed = 61,

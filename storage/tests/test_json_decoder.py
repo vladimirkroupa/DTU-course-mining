@@ -5,7 +5,6 @@ import json
 from storage.tests.data import data_dir
 from storage.tests.data.test_dataset_evaluations import COURSES
 
-
 class DecoderTest(unittest.TestCase):
 
     maxDiff = None
