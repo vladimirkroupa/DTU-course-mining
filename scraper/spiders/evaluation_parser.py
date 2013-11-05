@@ -38,13 +38,15 @@ class EvaluationParser():
                 return u'Summer'
             elif sem_part == u'Jan':
                 return u'January'
+            elif sem_part == u'Jun':
+                return u'June'
             else:
                 raise Exception(u'Unknown semester code {}'.format(sem_part))
 
         def parse_year(year_part):
             return u"20" + year_part
 
-        regex = re.compile("""(E|F|Jan)(?: )?(\d\d)""")
+        regex = re.compile("""(E|F|Jan|Jun)(?: )?(\d\d)""")
         r = regex.search(heading_str)
         groups = r.groups()
         check_len(groups, 2)
