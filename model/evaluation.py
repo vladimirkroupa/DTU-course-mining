@@ -2,21 +2,21 @@ import operator
 
 class Evaluation():
 
-    def __init__(self, year, semester, could_answer, have_answered, did_not_follow, performance_vector, prereq_vector):
+    def __init__(self, year, semester, could_answer, have_answered, did_not_follow, performance_scale, prereq_scale):
         self.year = year
         self.semester = semester
         self.could_answer = could_answer
         self.have_answered = have_answered
         self.did_not_follow = did_not_follow
-        self.performance_vector = performance_vector
-        self.prereq_vector = prereq_vector
+        self.performance_scale = performance_scale
+        self.prereq_scale = prereq_scale
 
     def __key__(self):
-        return (self.year, self.semester, self.could_answer, self.have_answered, self.did_not_follow, self.performance_vector, self.prereq_vector)
+        return (self.year, self.semester, self.could_answer, self.have_answered, self.did_not_follow, self.performance_scale, self.prereq_scale)
 
     def __repr__(self):
         templ = "Course evaluation from {}, {} semester: {} could answer, {} have answered, {} did not follow. Performance: {}, prerequisites: {}"
-        return templ.format(self.year, self.semester, self.could_answer, self.have_answered, self.did_not_follow, self.performance_vector, self.prereq_vector)
+        return templ.format(self.year, self.semester, self.could_answer, self.have_answered, self.did_not_follow, self.performance_scale, self.prereq_scale)
 
     def __str__(self):
         return self.__repr__()
@@ -28,9 +28,12 @@ class Evaluation():
             self.could_answer == other.could_answer,
             self.have_answered == other.have_answered,
             self.did_not_follow == other.did_not_follow,
-            self.performance_vector == other.performance_vector,
-            self.prereq_vector == other.prereq_vector
+            self.performance_scale == other.performance_scale,
+            self.prereq_scale == other.prereq_scale
         ]
+        for x, comp in enumerate(comparisons):
+            if not comp:
+                print "course run differs at {} ({} total)".format(x, len(comparisons))
         return reduce(operator.and_, comparisons)
 
     def __ne__(self, other):

@@ -13,6 +13,15 @@ class Department:
         self.courses.append(course)
         course.department = self
 
+    def list_all_years(self):
+        """
+        :return: set of all years where at least one course of this department was taught.
+        """
+        years = set()
+        for course in self.courses:
+            years.update(course.list_years_run())
+        return years
+
     def __repr__(self):
         templ = u"{} : {} ({})"
         result = templ.format(self.code, self.name_en, self.name_da)
