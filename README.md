@@ -18,6 +18,7 @@ List of libraries to install:
 --------------
 - python-scrapy
 - mock
+- PyHamcrest
 
 Complete list of dependencies:
 --------------
@@ -25,6 +26,7 @@ Complete list of dependencies:
 - Mako==0.9.0
 - Markdown==2.3.1
 - MarkupSafe==0.18
+- PyHamcrest==1.8.0
 - Scrapy==0.18.2
 - Twisted==13.1.0
 - argparse==1.2.1

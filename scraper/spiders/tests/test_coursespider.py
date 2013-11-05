@@ -6,6 +6,7 @@ from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import DepartmentItem
 from scraper.items import CourseItem
 from scraper.spiders.tests.data import data_dir
+from hamcrest import *
 
 class CourseSpiderTest(unittest.TestCase):
 
@@ -29,8 +30,7 @@ class CourseSpiderTest(unittest.TestCase):
     def test_parse(self):
         results = self.spider.parse(fake_response_from_file(self.department_list_page))
         result_list = list(results)
-        self.assertTrue(len(result_list) == 2)
-        self._check_departments(result_list)
+        assert_that(result_list, has_length(21))
 
     def test_parse_department_page(self):
         response = fake_response_from_file(self.department_27_page)
