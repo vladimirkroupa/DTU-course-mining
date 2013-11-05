@@ -32,3 +32,6 @@ def set_url_param(url, param_name, param_value):
     new_query_string = urlencode(query_params, doseq=True)
 
     return urlunsplit((scheme, netloc, path, new_query_string, fragment))
+
+def ext_strip_encode(selector):
+    return selector.extract().strip().encode('utf-8')

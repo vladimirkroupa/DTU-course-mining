@@ -3,6 +3,7 @@ from util.scrapy_utils import *
 from scraper.items import CourseRun
 import logging
 import re
+from scale_corrector import ScaleCorrector
 
 class CourseRunParser():
 
@@ -65,7 +66,10 @@ class CourseRunParser():
 
     def process_grade_table(self, grades_table, course_run):
 
-        def process_grade_table_line(header, value, course_run):
+        def is_mixed_scale(headers_values):
+            return headers_values[0][0] == '12' and headers_values[-1][0] == u'Not passed'
+
+        def process_grade_table_line(header, value, course_run, scale_corrector = None):
             item_fields = {'12' : 'grade_12',
                            '10': 'grade_10',
                            '7': 'grade_7',
@@ -76,16 +80,25 @@ class CourseRunParser():
                            'Ill': 'sick',
                            'No show': 'not_shown'}
 
-            if header not in item_fields:
+            corrector_recognized = scale_corrector.offer_line(header, value)
+            regular_header = header in item_fields
+            if regular_header:
+                field = item_fields.get(header)
+                course_run[field] = value
+            elif not corrector_recognized:
                 self.log('Grade table contains unexpected header {}'.format(header), level=logging.ERROR)
-            field = item_fields[header]
-            course_run[field] = value
 
         inner_table = select_single(grades_table, '(tr/td/table)[1]')
-        for row in inner_table.select('tr')[1:]:
-            header = select_single(row, 'td[1]/text()').extract().strip().encode('utf-8')
-            value = select_single(row, 'td[2]/text()').extract().strip().encode('utf-8')
-            process_grade_table_line(header, value, course_run)
+        rows = inner_table.select('tr')[1:]
+        headers_values = [(ext_strip_encode(select_single(row, 'td[1]/text()')), ext_strip_encode(select_single(row, 'td[2]/text()'))) for row in rows]
+        scale_corrector = ScaleCorrector(ScaleCorrector.DISABLED)
+        if is_mixed_scale(headers_values):
+            scale_corrector = ScaleCorrector(ScaleCorrector.MIXED_SCALES)
+            self.log('Found mixed grade scales. Enabling grade scale corrections.')
+        for header, value in headers_values:
+            process_grade_table_line(header, value, course_run, scale_corrector)
+
+        scale_corrector.apply_corrections(course_run)
 
     def process_course_run_heading(self, heading_text, course_run):
         self.log('Going to parse course run heading: [{}]'.format(heading_text))
