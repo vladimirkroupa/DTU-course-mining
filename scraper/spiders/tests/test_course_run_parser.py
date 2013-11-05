@@ -17,6 +17,7 @@ class CourseRunParserTest(unittest.TestCase):
         self.not_enough_grades = os.path.join(data_dir(), 'Course_run_not_enough_grades.html')
         self.missing_passed = os.path.join(data_dir(), 'Course_run_missing_passed.html')
         self.mixed_scales = os.path.join(data_dir(), 'Course_run_mixed_scales.html')
+        self.not_shown = os.path.join(data_dir(), 'Course_run_not_shown.html')
 
     def test_parse_grade_dist_page(self):
         response = fake_response_from_file(self.course_27002_course_run_page)
@@ -108,6 +109,7 @@ class CourseRunParserTest(unittest.TestCase):
         self.assertEqual(u'Summer', course_run['semester'])
         self.assertEqual(u'23', course_run['students_registered'])
         self.assertEqual(u'23', course_run['students_attended'])
+        self.assertEqual(u'23', course_run['students_passed'])
         self.assertEqual(u'2', course_run['grade_12'])
         self.assertEqual(u'3', course_run['grade_10'])
         self.assertEqual(u'13', course_run['grade_7'])
@@ -115,3 +117,26 @@ class CourseRunParserTest(unittest.TestCase):
         self.assertEqual(u'4', course_run['grade_02'])
         self.assertEqual(u'0', course_run['grade_00'])
         self.assertEqual(u'0', course_run['grade_minus_3'])
+
+    def test_parse_grade_dist_not_shown(self):
+        response = fake_response_from_file(self.not_shown)
+        response.meta['course'] = CourseItem(course_runs = [], code = '27944')
+        response.meta['counter'] = PageCounter(1, 0)
+
+        course_item = self.course_run_parser.parse_grade_dist_page(response)
+        course_run = course_item['course_runs'][0]
+
+        self.assertEqual(u'2011', course_run['year'])
+        self.assertEqual(u'Winter', course_run['semester'])
+        self.assertEqual(u'22', course_run['students_registered'])
+        self.assertEqual(u'20', course_run['students_attended'])
+        self.assertEqual(u'20', course_run['students_passed'])
+        self.assertEqual(u'1', course_run['grade_12'])
+        self.assertEqual(u'1', course_run['grade_10'])
+        self.assertEqual(u'7', course_run['grade_7'])
+        self.assertEqual(u'8', course_run['grade_4'])
+        self.assertEqual(u'3', course_run['grade_02'])
+        self.assertEqual(u'0', course_run['grade_00'])
+        self.assertEqual(u'0', course_run['grade_minus_3'])
+        self.assertEqual(u'2', course_run['not_shown'])
+
