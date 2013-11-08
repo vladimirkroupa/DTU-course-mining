@@ -26,8 +26,8 @@ class CourseSpider(BaseSpider):
         hxs = HtmlXPathSelector(response)
         base_url = get_base_url(response)
         self.log("Base URL: " + base_url)
-        for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]'):
-        #for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1] | //div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][2]'):
+        #for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id]'):
+        for department_line in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][1] | //div[@class = "CourseViewer"]/table/tr/td/table/tr/td/table/tr[@id][2]'):
             department = self.parse_department(department_line)
             department_url = self.extract_department_link(base_url, department_line)
             yield Request(department_url, callback = self.parse_department_page, meta = {'department' : department})
@@ -57,7 +57,7 @@ class CourseSpider(BaseSpider):
         for onclick in hxs.select('//div[@class = "CourseViewer"]/table/tr/td/table/tr[2]/td/table/tr[@id]/@onclick'):
             course_url = self.extract_course_url(onclick, base_url)
             self.log("Extracted course URL: " + course_url)
-            course_url_en = set_url_param(course_url, 'language', 'en-GB')
+            course_url_en = set_url_param(course_url, 'menulanguage', 'en-GB')
             yield Request(course_url_en, callback = self.parse_course, meta = {'department' : department})
 
     def extract_course_url(self, onclick, base_url):
@@ -75,12 +75,12 @@ class CourseSpider(BaseSpider):
         self.process_second_table(main_div, course)
         eval_url = self.create_course_eval_request(response.url)
 
-        # TODO: move to Course class
         if course['evaluation_type'] == 'pass / not pass':
             self.log('Skipping pass/fail evaluation type course {}'.format(course['title_en']))
             return
 
-        yield Request(eval_url, callback = self.parse_page_with_info_link, meta = {'course' : course})
+        #yield Request(eval_url, callback = self.parse_page_with_info_link, meta = {'course' : course})
+        yield course
 
     def create_course_eval_request(self, course_url):
         tokens = course_url.split("/")
