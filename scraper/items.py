@@ -19,6 +19,8 @@ class CourseItem(Item):
     department = Field()
     course_runs = Field()
     evaluations = Field()
+    prereqs = Field()
+    previous = Field()
 
 class CourseRun(Item):
     year = Field()

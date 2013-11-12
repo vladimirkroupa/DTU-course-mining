@@ -1,6 +1,7 @@
 import unittest
 import os
 from scraper.spiders.coursespider import CourseSpider
+from scraper.spiders.course_spider_new import CourseSpiderNew
 from util.scrapy_testutils import fake_response_from_file
 from scraper.spiders.tests import __file__ as test_directory
 from scraper.items import DepartmentItem
@@ -11,7 +12,7 @@ from hamcrest import *
 class CourseSpiderTest(unittest.TestCase):
 
     def setUp(self):
-        self.spider = CourseSpider()
+        self.spider = CourseSpiderNew()
         self.department_list_page = os.path.join(data_dir(), 'DTU_Coursebase.html')
         self.department_27_page = os.path.join(data_dir(), 'Department27.html')
         self.course_27002_page = os.path.join(data_dir(), '27002.html')
@@ -42,8 +43,7 @@ class CourseSpiderTest(unittest.TestCase):
     def test_parse_course(self):
         response = fake_response_from_file(self.course_27002_page)
         response.meta['department'] = DepartmentItem()
-        results = self.spider.parse_course(response)
-        actual = results.next().meta['course']
+        actual = self.spider.parse_course(response)
 
         self.assertEqual(u'27002', actual['code'])
         self.assertEqual(u'Danish', actual['language'])

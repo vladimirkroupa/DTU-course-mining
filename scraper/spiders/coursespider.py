@@ -90,7 +90,7 @@ class CourseSpider(BaseSpider):
     def process_heading(self, main_div, course):
         h2 = select_single(main_div, 'h2/text()').extract().strip()
         self.log('Going to parse course code and title: ' + h2)
-        regex = re.compile('^([0-9A-Z]{5}) (.*)')
+        regex = re.compile(r'^([0-9A-Z]{5}) (.*)')
         match = regex.match(h2)
         groups = match.groups()
         check_len(groups, 2)
@@ -115,11 +115,8 @@ class CourseSpider(BaseSpider):
         table = main_div.select('table[1]')
 
         course['title_da'] = self.process_table_row(table, "Danish title:")
-
         course['language'] = self.process_table_row(table, "Language:")
-
         course['ects_credits'] = self.process_table_row(table, "Point( ECTS )")
-
         course['course_type'] = self.process_table_row(table, "Course type:")
 
     def process_second_table(self, main_div, course):
@@ -129,6 +126,8 @@ class CourseSpider(BaseSpider):
 
         table = main_div.select('table[2]')
         eval_type = self.process_table_row(table, "Evaluation:", postprocess = parse_evaluation_type)
+        prereqs = self.process_table_row(table, "Qualified Prerequisites:")
+        previous = self.process_table_row(table, "Previous Course:")
         course['evaluation_type'] = eval_type
 
     def parse_page_with_info_link(self, response):
