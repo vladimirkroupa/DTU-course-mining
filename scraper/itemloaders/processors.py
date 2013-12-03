@@ -23,3 +23,8 @@ class StripAndEncode(object):
     def __call__(self, values):
         return [s.strip().encode(self.encoding) for s in values]
 
+
+class ParseCommaFloat(object):
+
+    def __call__(self, values):
+        return [float(value.replace(',', '.')) for value in values]

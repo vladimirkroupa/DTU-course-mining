@@ -1,11 +1,7 @@
-import re
 from scrapy.contrib.loader import XPathItemLoader
 from scraper.items import CourseItem
-from scraper.itemloaders.processors import EvaluationTypeProcessor
-from scraper.itemloaders.processors import Strip
-from scraper.itemloaders.processors import StripAndEncode
-from scrapy.contrib.loader.processor import TakeFirst
-from scrapy.contrib.loader.processor import Identity
+from scraper.itemloaders.processors import EvaluationTypeProcessor, Strip, ParseCommaFloat
+from scrapy.contrib.loader.processor import TakeFirst, Identity
 
 class CourseItemLoader(XPathItemLoader):
 
@@ -14,8 +10,9 @@ class CourseItemLoader(XPathItemLoader):
     default_input_processor = Strip()
     default_output_processor = TakeFirst()
 
-    title_da_in = StripAndEncode(encoding='utf-8')
+    title_da_in = Strip()
     evaluation_type_in = EvaluationTypeProcessor()
+    ects_credits_in = ParseCommaFloat()
 
     previous_out = Identity()
     prereqs_out = Identity()

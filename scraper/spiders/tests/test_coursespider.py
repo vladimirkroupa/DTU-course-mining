@@ -51,7 +51,7 @@ class CourseSpiderTest(unittest.TestCase):
         self.assertEqual(u'Life Science', actual['title_en'])
         self.assertEqual(u'Biovidenskab', actual['title_da'])
         self.assertEqual(u'7 step scale', actual['evaluation_type'])
-        self.assertEqual(u'5', actual['ects_credits'])
+        self.assertEqual(5.0, actual['ects_credits'])
         self.assertEqual(u'BSc', actual['course_type'])
 
     @unittest.skip("skipping unimplemented method test")
