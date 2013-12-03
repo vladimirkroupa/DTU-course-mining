@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 from scraper.items import CourseItem, DepartmentItem
 from model.department import Department
@@ -96,6 +98,43 @@ class CourseRepositoryTest(unittest.TestCase):
         actual_2 = self.test_object.find_course_by_code('11116')
         self.assertEqual(expected_1, actual_1)
         self.assertEqual(expected_2, actual_2)
+
+    def test_store_unicode_course(self):
+        course = CourseItem(
+            code = '11120',
+            language = 'English',
+            title_en = 'Daylight in buildings',
+            title_da = u'Computational Fluid Dynamics vedrørende bygninger',
+            evaluation_type = '7 step scale',
+            ects_credits = 5.0,
+            course_type = 'MSc',
+            department = DepartmentItem(
+                code = '11',
+                title_en = 'Department of Civil Engineering',
+                title_da = None
+            )
+        )
+
+        self.test_object.store_course_item(course)
+
+        expected = Course(
+            code = '11120',
+            language = 'English',
+            title_en = 'Daylight in buildings',
+            title_da = u'Computational Fluid Dynamics vedrørende bygninger',
+            evaluation_type = '7 step scale',
+            ects_credits = 5.0,
+            course_type = 'MSc',
+            department = Department(
+                code = '11',
+                title_en = 'Department of Civil Engineering',
+                title_da = None
+            )
+        )
+
+        actual = self.test_object.find_course_by_code('11120')
+        self.assertEqual(expected, actual)
+
 
 
 if __name__ == '__main__':
