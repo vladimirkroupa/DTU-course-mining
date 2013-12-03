@@ -2,39 +2,45 @@ from model.course import Course
 from model.department import Department
 from sqlalchemy import MetaData, Table, Column, ForeignKey, Integer, Float, String
 from sqlalchemy import create_engine, select
+from sqlalchemy.orm import mapper
 
 class CourseRepository(object):
 
     def __init__(self):
-        self.db = create_engine('sqlite:///:memory:', echo=True)
+        self.db = create_engine('sqlite:///courses.db', echo=True)
 
         metadata = MetaData()
 
         self.departments = Table('departments', metadata,
-                            Column('id', Integer, primary_key=True),
-                            Column('dep_code', String),
+                            Column('code', String, primary_key=True),
                             Column('name_en', String))
 
         self.courses = Table('courses', metadata,
-                        Column('id', Integer, primary_key=True),
-                        Column('code', String),
+                        Column('code', String, primary_key=True),
                         Column('language', String),
                         Column('title_en', String),
                         Column('title_da', String),
                         Column('evaluation_type', String),
                         Column('ects_credits', Float),
                         Column('course_type', String),
-                        Column('department_id', Integer, ForeignKey('departments.id')))
+                        Column('department_code', String, ForeignKey('departments.code')))
 
         metadata.create_all(self.db)
 
     def __del__(self):
         self.db.dispose()
 
+    def clear(self):
+        del_c = self.courses.delete()
+        del_d = self.departments.delete()
+        self.db.execute(del_c)
+        self.db.execute(del_d)
+
     def store_course_item(self, course):
-        dep_id = self.find_department_by_code(course['department']['code'])
-        if not dep_id:
-            dep_id = self.store_department_item(course['department'])
+        dep_code = course['department']['code']
+        dep = self.find_department_by_code(dep_code)
+        if not dep:
+            self.store_department_item(course['department'])
 
         ins = self.courses.insert().values(
             code = course['code'],
@@ -44,15 +50,16 @@ class CourseRepository(object):
             evaluation_type = course['evaluation_type'],
             ects_credits = course['ects_credits'],
             course_type = course['course_type'],
-            department_id = dep_id
+            department_code = dep_code
         )
 
-        res = self.db.execute(ins)
-        return res.inserted_primary_key[0]
+        self.db.execute(ins)
 
     def find_course_by_code(self, code):
         code = unicode(code)
-        sel = select([self.courses, self.departments]).where(self.courses.c.code == code)
+        sel = select([self.courses, self.departments], use_labels=True)\
+            .select_from(self.courses.join(self.departments))\
+            .where(self.courses.c.code == code)
         result = self.db.execute(sel)
         courses = [self._map_course(row) for row in result]
         if len(courses) == 0:
@@ -61,13 +68,12 @@ class CourseRepository(object):
             return courses[0]
 
     def store_department_item(self, department):
-        ins = self.departments.insert().values(dep_code=department['code'], name_en=department['title_en'])
-        res = self.db.execute(ins)
-        return res.inserted_primary_key[0]
+        ins = self.departments.insert().values(code=department['code'], name_en=department['title_en'])
+        self.db.execute(ins)
 
     def find_department_by_code(self, code):
         code = unicode(code)
-        sel = select([self.departments]).where(self.departments.c.dep_code == code)
+        sel = select([self.departments], use_labels=True).where(self.departments.c.code == code)
         result = self.db.execute(sel)
         departments = [self._map_department(row) for row in result]
         if len(departments) == 0:
@@ -78,19 +84,19 @@ class CourseRepository(object):
     def _map_course(self, row_proxy):
         department = self._map_department(row_proxy)
         return Course(
-            code = row_proxy['code'],
-            language = row_proxy['language'],
-            title_en = row_proxy['title_en'],
-            title_da = row_proxy['title_da'],
-            evaluation_type = row_proxy['evaluation_type'],
-            ects_credits = row_proxy['ects_credits'],
-            course_type = row_proxy['course_type'],
+            code = row_proxy['courses_code'],
+            language = row_proxy['courses_language'],
+            title_en = row_proxy['courses_title_en'],
+            title_da = row_proxy['courses_title_da'],
+            evaluation_type = row_proxy['courses_evaluation_type'],
+            ects_credits = row_proxy['courses_ects_credits'],
+            course_type = row_proxy['courses_course_type'],
             department = department
         )
 
     def _map_department(self, row_proxy):
         return Department(
-            code = row_proxy['dep_code'],
-            title_en = row_proxy['name_en'],
+            code = row_proxy['departments_code'],
+            title_en = row_proxy['departments_name_en'],
             title_da = None
         )

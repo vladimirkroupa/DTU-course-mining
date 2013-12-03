@@ -9,6 +9,9 @@ class CourseRepositoryTest(unittest.TestCase):
     def setUp(self):
         self.test_object = CourseRepository()
 
+    def tearDown(self):
+        self.test_object.clear()
+
     def test_store_find_department(self):
         dep_1 = DepartmentItem(code='24', title_en='National Veterinary Institute', title_da=None)
         dep_2 = DepartmentItem(code='23', title_en='National Food Institute', title_da=None)
@@ -24,7 +27,7 @@ class CourseRepositoryTest(unittest.TestCase):
         self.assertIsNone(self.test_object.find_department_by_code('25'))
 
     def test_store_find_course(self):
-        course = CourseItem(
+        course_1 = CourseItem(
             code = '11120',
             language = 'English',
             title_en = 'Daylight in buildings',
@@ -39,7 +42,22 @@ class CourseRepositoryTest(unittest.TestCase):
             )
         )
 
-        expected = Course(
+        course_2 = CourseItem(
+            code = u'11116',
+            language = u'English',
+            title_en = u'Sustainable Buildings',
+            title_da = u'Energirigtigt byggeri',
+            evaluation_type = u'7 step scale',
+            ects_credits = 10,
+            course_type = u'MSc',
+            department = DepartmentItem(
+                code = u'11',
+                title_en = u'Department of Civil Engineering',
+                title_da = None
+            )
+        )
+
+        expected_1 = Course(
             code = '11120',
             language = 'English',
             title_en = 'Daylight in buildings',
@@ -54,9 +72,30 @@ class CourseRepositoryTest(unittest.TestCase):
             )
         )
 
-        self.test_object.store_course_item(course)
-        actual = self.test_object.find_course_by_code('11120')
-        self.assertEqual(expected, actual)
+        expected_2 = Course(
+            code = u'11116',
+            language = u'English',
+            title_en = u'Sustainable Buildings',
+            title_da = u'Energirigtigt byggeri',
+            evaluation_type = u'7 step scale',
+            ects_credits = 10,
+            course_type = u'MSc',
+            department = Department(
+                code = u'11',
+                title_en = u'Department of Civil Engineering',
+                title_da = None
+            )
+        )
+
+        dep_1 = DepartmentItem(code='24', title_en='National Veterinary Institute', title_da=None)
+        self.test_object.store_department_item(dep_1)
+
+        self.test_object.store_course_item(course_1)
+        self.test_object.store_course_item(course_2)
+        actual_1 = self.test_object.find_course_by_code('11120')
+        actual_2 = self.test_object.find_course_by_code('11116')
+        self.assertEqual(expected_1, actual_1)
+        self.assertEqual(expected_2, actual_2)
 
 
 if __name__ == '__main__':
