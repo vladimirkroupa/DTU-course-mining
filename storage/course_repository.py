@@ -12,7 +12,7 @@ class CourseRepository(object):
 
         self.departments = Table('departments', metadata,
                             Column('id', Integer, primary_key=True),
-                            Column('code', String),
+                            Column('dep_code', String),
                             Column('name_en', String))
 
         self.courses = Table('courses', metadata,
@@ -31,19 +31,19 @@ class CourseRepository(object):
     def __del__(self):
         self.db.dispose()
 
-    def store_course(self, course):
-        dep_id = self.find_department_by_code(course.department.code)
+    def store_course_item(self, course):
+        dep_id = self.find_department_by_code(course['department']['code'])
         if not dep_id:
-            dep_id = self.store_department(course.department)
+            dep_id = self.store_department_item(course['department'])
 
         ins = self.courses.insert().values(
-            code = course.code,
-            language = course.language,
-            title_en = course.title_en,
-            title_da = course.title_da,
-            evaluation_type = course.evaluation_type,
-            ects_credits = course.ects_credits,
-            course_type = course.course_type,
+            code = course['code'],
+            language = course['language'],
+            title_en = course['title_en'],
+            title_da = course['title_da'],
+            evaluation_type = course['evaluation_type'],
+            ects_credits = course['ects_credits'],
+            course_type = course['course_type'],
             department_id = dep_id
         )
 
@@ -60,14 +60,14 @@ class CourseRepository(object):
         else:
             return courses[0]
 
-    def store_department(self, department):
-        ins = self.departments.insert().values(code=department.code, name_en=department.name_en)
+    def store_department_item(self, department):
+        ins = self.departments.insert().values(dep_code=department['code'], name_en=department['title_en'])
         res = self.db.execute(ins)
         return res.inserted_primary_key[0]
 
     def find_department_by_code(self, code):
         code = unicode(code)
-        sel = select([self.departments]).where(self.departments.c.code == code)
+        sel = select([self.departments]).where(self.departments.c.dep_code == code)
         result = self.db.execute(sel)
         departments = [self._map_department(row) for row in result]
         if len(departments) == 0:
@@ -90,7 +90,7 @@ class CourseRepository(object):
 
     def _map_department(self, row_proxy):
         return Department(
-            code = row_proxy['code'],
+            code = row_proxy['dep_code'],
             title_en = row_proxy['name_en'],
             title_da = None
         )
