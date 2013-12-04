@@ -2,7 +2,6 @@ from model.course import Course
 from model.department import Department
 from sqlalchemy import MetaData, Table, Column, ForeignKey, Integer, Float, String
 from sqlalchemy import create_engine, select
-from sqlalchemy.orm import mapper
 
 class CourseRepository(object):
 
@@ -23,6 +22,8 @@ class CourseRepository(object):
                         Column('evaluation_type', String),
                         Column('ects_credits', Float),
                         Column('course_type', String),
+                        Column('prereqs', String),
+                        Column('prereq_desc', String),
                         Column('department_code', String, ForeignKey('departments.code')))
 
         metadata.create_all(self.db)
@@ -50,6 +51,8 @@ class CourseRepository(object):
             evaluation_type = course['evaluation_type'],
             ects_credits = course['ects_credits'],
             course_type = course['course_type'],
+            prereqs = course.get('prereqs', ''),
+            prereq_desc = course.get('prereq_desc', ''),
             department_code = dep_code
         )
 

@@ -28,3 +28,8 @@ class ParseCommaFloat(object):
 
     def __call__(self, values):
         return [float(value.replace(',', '.')) for value in values]
+
+class PrereqsProcessor(object):
+
+    def __call__(self, values):
+        return ''.join(values)

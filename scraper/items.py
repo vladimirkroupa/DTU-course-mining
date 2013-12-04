@@ -20,6 +20,7 @@ class CourseItem(Item):
     course_runs = Field()
     evaluations = Field()
     prereqs = Field()
+    prereq_desc = Field()
     previous = Field()
 
 class CourseRun(Item):

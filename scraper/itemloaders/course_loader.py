@@ -1,6 +1,6 @@
 from scrapy.contrib.loader import XPathItemLoader
 from scraper.items import CourseItem
-from scraper.itemloaders.processors import EvaluationTypeProcessor, Strip, ParseCommaFloat
+from scraper.itemloaders.processors import EvaluationTypeProcessor, Strip, ParseCommaFloat, PrereqsProcessor
 from scrapy.contrib.loader.processor import TakeFirst, Identity
 
 class CourseItemLoader(XPathItemLoader):
@@ -15,7 +15,7 @@ class CourseItemLoader(XPathItemLoader):
     ects_credits_in = ParseCommaFloat()
 
     previous_out = Identity()
-    prereqs_out = Identity()
+    prereqs_out = PrereqsProcessor()
 
     def __init__(self, response):
         super(CourseItemLoader, self).__init__(response=response)
@@ -32,5 +32,7 @@ class CourseItemLoader(XPathItemLoader):
 
         TABLE_2_ROW = MAIN_DIV + '/table[2]/tr[contains(td/h3/text(), "{}")]/td[2]/descendant::text()'
         self.add_xpath('evaluation_type', TABLE_2_ROW.format('Evaluation:'))
-        self.add_xpath('prereqs', TABLE_2_ROW.format('Qualified Prerequisites:'))
+        PREREQ_TD = MAIN_DIV + '/table[2]/tr[contains(td/h3/text(), "Qualified Prerequisites:")]/td[2]'
+        self.add_xpath('prereqs', PREREQ_TD + '/label[@class="value" and a]/descendant::text()')
+        self.add_xpath('prereq_desc', PREREQ_TD + '/label[@class="value" and not(a)]/descendant::text()')
         self.add_xpath('previous', TABLE_2_ROW.format('Previous Course:'))
