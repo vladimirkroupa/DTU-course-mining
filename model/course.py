@@ -18,6 +18,9 @@ class Course:
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
 
+    def prereq_string(self):
+        pass
+
     def add_course_runs(self, course_runs):
         for run in course_runs:
             self.add_course_run(run)
