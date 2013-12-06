@@ -31,8 +31,8 @@ class CourseSpiderTest(unittest.TestCase):
     def test_parse(self):
         results = self.spider.parse(fake_response_from_file(self.department_list_page))
         result_list = list(results)
-        #assert_that(result_list, has_length(21))
-        assert_that(result_list, has_length(1))
+        assert_that(result_list, has_length(21))
+        #assert_that(result_list, has_length(1))
 
     def test_parse_department_page(self):
         response = fake_response_from_file(self.department_27_page)
