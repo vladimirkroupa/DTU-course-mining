@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import operator
+from viz.shunting_yard import ShuntingYard
+from viz.pydot_generator import PydotAstWalker
 
 class Course:
     
@@ -19,6 +21,12 @@ class Course:
         self.evaluations = {}
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
+
+    def prereq_graph(self):
+        sy = ShuntingYard(self.prereq_str)
+        root_operator = sy.process()
+        walker = PydotAstWalker(root_operator, self.code)
+        return walker.generate_graph()
 
     def add_course_runs(self, course_runs):
         for run in course_runs:

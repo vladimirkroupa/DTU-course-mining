@@ -1,6 +1,5 @@
 from pydot import Dot, Edge, Node
 from shunting_yard import AllOf
-from shunting_yard import ShuntingYard
 
 class PydotAstWalker(object):
 
@@ -14,7 +13,7 @@ class PydotAstWalker(object):
         self.counter += 1
         return self.counter
 
-    def genererate_graph(self):
+    def generate_graph(self):
         root_operator_node = self._visit_node(self.ast)
         course_root_node = Node(self.course_code)
         self.graph.add_node(course_root_node)
@@ -38,18 +37,3 @@ class PydotAstWalker(object):
                 edge = Edge(this_node, child)
                 self.graph.add_edge(edge)
             return this_node
-
-
-def plot_prereqs(course):
-    sy = ShuntingYard(course.prereq_string)
-    root_operator = sy.process()
-    walker = PydotAstWalker(root_operator, course.code)
-    return walker.genererate_graph()
-
-
-sy = ShuntingYard("27021/27025.27231/27025.27230.27430")
-root_operator = sy.process()
-walker = PydotAstWalker(root_operator, "27432")
-graph = walker.genererate_graph()
-
-graph.write('test2.png', format='png')
