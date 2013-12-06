@@ -142,12 +142,9 @@ class ShuntingYard(object):
         for x in xrange(0, operands):
             operand = self.output_stack.pop()
             operator.add_child(operand)
-
-        # operand = self.output_stack.pop()
-        # operator.add_child(operand)
         self.output_stack.append(operator)
 
-    def process(self):
+    def parse_ast(self):
         while len(self.input):
             token = self.input.pop(0)
             if token.is_course():

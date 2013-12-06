@@ -2,7 +2,7 @@
 
 import operator
 from viz.shunting_yard import ShuntingYard
-from viz.pydot_generator import PydotAstWalker
+from viz.ast_walker import PydotAstWalker
 
 class Course:
     
@@ -22,9 +22,11 @@ class Course:
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
 
+    def _
+
     def prereq_graph(self):
         sy = ShuntingYard(self.prereq_expr)
-        root_operator = sy.process()
+        root_operator = sy.parse_ast()
         walker = PydotAstWalker(root_operator, self.code)
         return walker.generate_graph()
 
