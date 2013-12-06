@@ -4,7 +4,7 @@ import operator
 
 class Course:
     
-    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, department = None, course_runs = [], evaluations = []):
+    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, prereq_str = None, prereq_text = None, department = None, course_runs = [], evaluations = []):
         self.code = code
         self.language = language
         self.title_en = title_en
@@ -13,13 +13,12 @@ class Course:
         self.ects_credits = ects_credits
         self.course_type = course_type
         self.department = department
+        self.prereq_str = prereq_str
+        self.prereq_text = prereq_text
         self.course_runs = {}
         self.evaluations = {}
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
-
-    def prereq_string(self):
-        pass
 
     def add_course_runs(self, course_runs):
         for run in course_runs:
