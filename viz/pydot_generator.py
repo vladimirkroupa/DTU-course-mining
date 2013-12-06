@@ -1,5 +1,5 @@
 from pydot import Dot, Edge, Node
-from shunting_yard import AllOf, AnyOf, Course
+from shunting_yard import AllOf
 from shunting_yard import ShuntingYard
 
 class PydotAstWalker(object):
@@ -29,9 +29,9 @@ class PydotAstWalker(object):
         elif ast_node.is_operator():
             name = self._unique_name(ast_node)
             if isinstance(ast_node, AllOf):
-                this_node = Node(name, label="AND", shape="square")
+                this_node = Node(name, label="ALL", shape="square")
             else:
-                this_node = Node(name, label="OR", shape="diamond")
+                this_node = Node(name, label="ANY", shape="diamond")
             self.graph.add_node(this_node)
             child_nodes = [self._visit_node(child) for child in ast_node.children]
             for child in child_nodes:
