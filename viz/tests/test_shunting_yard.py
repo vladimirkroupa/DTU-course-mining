@@ -1,11 +1,11 @@
 import unittest
-from pydot.shunting_yard import AndOperator, OrOperator, Course, shunting_yard
+from viz.shunting_yard import AllOf, AnyOf
 
 class OperatorTest(unittest.TestCase):
 
     def setUp(self):
-        self.and_op = AndOperator()
-        self.or_op = OrOperator()
+        self.and_op = AllOf()
+        self.or_op = AnyOf()
 
     def test_lt(self):
         self.assertLess(self.and_op, self.or_op)
@@ -20,8 +20,3 @@ class OperatorTest(unittest.TestCase):
     def test_ne(self):
         self.assertNotEqual(self.and_op, self.or_op)
         self.assertNotEqual(self.or_op, self.and_op)
-
-
-class ShuntingYardTest(unittest.TestCase):
-
-    pass
