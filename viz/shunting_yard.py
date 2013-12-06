@@ -117,10 +117,14 @@ class ShuntingYard(object):
     #TODO
     def _pop_onto_output(self):
         operator = self.operator_stack.pop()
-        l_operand = self.output_stack.pop()
-        r_operand = self.output_stack.pop()
-        operator.add_child(l_operand)
-        operator.add_child(r_operand)
+        operands = 2
+        for op in reversed(self.operator_stack):
+            if op == operator:
+                operands += 1
+                self.operator_stack.pop()
+        for x in xrange(0, operands):
+            operand = self.output_stack.pop()
+            operator.add_child(operand)
         self.output_stack.append(operator)
 
     def process(self):
