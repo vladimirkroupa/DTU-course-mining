@@ -3,6 +3,7 @@
 import operator
 from viz.shunting_yard import ShuntingYard
 from viz.ast_walker import PydotAstWalker
+from viz.graph_aggregator import GraphAggregator
 
 class Course:
     
@@ -34,6 +35,14 @@ class Course:
         expr = self._fix_prereq_expr()
         sy = ShuntingYard(expr)
         return sy.parse_ast()
+
+    def transitive_prereq_graph(self, course_repository, max_depth = 10):
+        aggregator = GraphAggregator(course_repository)
+
+        root_operator = self._prereq_ast()
+        aggregator.append_leaf_prereqs(root_operator, max_depth)
+        walker = PydotAstWalker(root_operator, self.code, self._validate_prereq_expr())
+        return walker.generate_graph()
 
     def prereq_graph(self):
         root_operator = self._prereq_ast()
