@@ -6,7 +6,7 @@ from viz.pydot_generator import PydotAstWalker
 
 class Course:
     
-    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, prereq_str = None, prereq_text = None, department = None, course_runs = [], evaluations = []):
+    def __init__(self, code, language, title_en, title_da, evaluation_type, ects_credits, course_type, prereq_expr = None, prereq_desc = None, department = None, course_runs = [], evaluations = []):
         self.code = code
         self.language = language
         self.title_en = title_en
@@ -15,15 +15,15 @@ class Course:
         self.ects_credits = ects_credits
         self.course_type = course_type
         self.department = department
-        self.prereq_str = prereq_str
-        self.prereq_text = prereq_text
+        self.prereq_expr = prereq_expr
+        self.prereq_desc = prereq_desc
         self.course_runs = {}
         self.evaluations = {}
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
 
     def prereq_graph(self):
-        sy = ShuntingYard(self.prereq_str)
+        sy = ShuntingYard(self.prereq_expr)
         root_operator = sy.process()
         walker = PydotAstWalker(root_operator, self.code)
         return walker.generate_graph()

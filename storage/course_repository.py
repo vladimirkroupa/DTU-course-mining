@@ -1,12 +1,12 @@
 from model.course import Course
 from model.department import Department
-from sqlalchemy import MetaData, Table, Column, ForeignKey, Integer, Float, String
+from sqlalchemy import MetaData, Table, Column, ForeignKey, Float, String
 from sqlalchemy import create_engine, select
 
 class CourseRepository(object):
 
     def __init__(self):
-        self.db = create_engine('sqlite:///courses.db', echo=True)
+        self.db = create_engine('sqlite:///courses.db', echo=False)
 
         metadata = MetaData()
 
@@ -94,6 +94,8 @@ class CourseRepository(object):
             evaluation_type = row_proxy['courses_evaluation_type'],
             ects_credits = row_proxy['courses_ects_credits'],
             course_type = row_proxy['courses_course_type'],
+            prereq_expr = row_proxy['courses_prereqs'],
+            prereq_desc = row_proxy['courses_prereq_desc'],
             department = department
         )
 
