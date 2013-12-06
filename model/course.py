@@ -27,7 +27,13 @@ class Course:
         return True
 
     def _fix_prereq_expr(self):
-        return self.prereq_expr.replace(".)", ")")
+        def ad_hoc_unmatched_operator_fix(expr):
+            return expr.replace(".)", ")")
+
+        def remove_spaces(expr):
+            return expr.replace(' ', '')
+
+        return ad_hoc_unmatched_operator_fix(remove_spaces(self.prereq_expr))
 
     def _prereq_ast(self):
         if self.prereq_expr is None or not self._validate_prereq_expr():
