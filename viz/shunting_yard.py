@@ -43,7 +43,8 @@ class NAryOperator(Token):
         pass
 
     def _compare(self, method, other):
-        return method(self.precedence(), other.precedence())
+        return isinstance(self, NAryOperator) and isinstance(other, NAryOperator) \
+            and method(self.precedence(), other.precedence())
 
     def __lt__(self, other):
         return self._compare(operator.lt, other)
@@ -69,11 +70,17 @@ class AllOf(NAryOperator):
     def precedence(self):
         return 1
 
+    def __repr__(self):
+        return "."
+
 
 class AnyOf(NAryOperator):
 
     def precedence(self):
         return 2
+
+    def __repr__(self):
+        return "/"
 
 
 class Course(Token):
@@ -84,17 +91,26 @@ class Course(Token):
     def is_course(self):
         return True
 
+    def __repr__(self):
+        return self.code
+
 
 class LeftParenthesis(Token):
 
     def is_left_paren(self):
         return True
 
+    def __repr__(self):
+        return "("
+
 
 class RightParenthesis(Token):
 
     def is_right_paren(self):
         return True
+
+    def __repr__(self):
+        return ")"
 
 
 class ShuntingYard(object):
@@ -114,7 +130,6 @@ class ShuntingYard(object):
         else:
             return None
 
-    #TODO
     def _pop_onto_output(self):
         operator = self.operator_stack.pop()
         operands = 2
@@ -122,13 +137,19 @@ class ShuntingYard(object):
             if op == operator:
                 operands += 1
                 self.operator_stack.pop()
+            else:
+                break
         for x in xrange(0, operands):
             operand = self.output_stack.pop()
             operator.add_child(operand)
+
+        # operand = self.output_stack.pop()
+        # operator.add_child(operand)
         self.output_stack.append(operator)
 
     def process(self):
-        for token in self.input:
+        while len(self.input):
+            token = self.input.pop(0)
             if token.is_course():
                 self.output_stack.append(token)
             elif token.is_operator():
