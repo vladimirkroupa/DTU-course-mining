@@ -76,6 +76,8 @@ class AllOf(NAryOperator):
     def __repr__(self):
         return "."
 
+    def __str__(self):
+        return "ALL"
 
 class AnyOf(NAryOperator):
 
@@ -85,6 +87,8 @@ class AnyOf(NAryOperator):
     def __repr__(self):
         return "/"
 
+    def __str__(self):
+        return "ANY"
 
 class Course(Token):
 

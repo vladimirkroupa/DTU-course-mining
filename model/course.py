@@ -22,10 +22,22 @@ class Course:
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
 
+    def _validate_prereq_expr(self):
+        return True
+
+    def _fix_prereq_expr(self):
+        return self.prereq_expr.replace(".)", ")")
+
+    def _prereq_ast(self):
+        if self.prereq_expr is None or not self._validate_prereq_expr():
+            return None
+        expr = self._fix_prereq_expr()
+        sy = ShuntingYard(expr)
+        return sy.parse_ast()
+
     def prereq_graph(self):
-        sy = ShuntingYard(self.prereq_expr)
-        root_operator = sy.parse_ast()
-        walker = PydotAstWalker(root_operator, self.code)
+        root_operator = self._prereq_ast()
+        walker = PydotAstWalker(root_operator, self.code, self._validate_prereq_expr())
         return walker.generate_graph()
 
     def add_course_runs(self, course_runs):
