@@ -24,6 +24,8 @@ class PydotAstWalker(object):
         if ast_node.is_course():
             node = Node(ast_node.code)
             self.graph.add_node(node)
+            if not ast_node.is_leaf():
+                self._visit_node(ast_node.child)
             return node
         elif ast_node.is_operator():
             name = self._unique_name(ast_node)

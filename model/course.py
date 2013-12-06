@@ -22,8 +22,6 @@ class Course:
         self.add_course_runs(course_runs)
         self.add_evaluations(evaluations)
 
-    def _
-
     def prereq_graph(self):
         sy = ShuntingYard(self.prereq_expr)
         root_operator = sy.parse_ast()

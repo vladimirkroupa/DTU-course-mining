@@ -5,6 +5,9 @@ from abc import ABCMeta, abstractmethod
 class Token(object):
     __metaclass__ = ABCMeta
 
+    def is_leaf(self):
+        return False
+
     def is_course(self):
         return False
 
@@ -87,9 +90,16 @@ class Course(Token):
 
     def __init__(self, code):
         self.code = code
+        self.child = None
 
     def is_course(self):
         return True
+
+    def is_leaf(self):
+        return self.child is None
+
+    def set_child(self, child):
+        self.child = child
 
     def __repr__(self):
         return self.code
