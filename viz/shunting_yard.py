@@ -67,13 +67,13 @@ class NAryOperator(Token):
 class AllOf(NAryOperator):
 
     def precedence(self):
-        return 2
+        return 1
 
 
 class AnyOf(NAryOperator):
 
     def precedence(self):
-        return 1
+        return 2
 
 
 class Course(Token):
