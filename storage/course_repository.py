@@ -51,8 +51,8 @@ class CourseRepository(object):
             evaluation_type = course['evaluation_type'],
             ects_credits = course['ects_credits'],
             course_type = course['course_type'],
-            prereqs = course.get('prereqs', ''),
-            prereq_desc = course.get('prereq_desc', ''),
+            prereqs = course.get('prereqs', None),
+            prereq_desc = course.get('prereq_desc', None),
             department_code = dep_code
         )
 
