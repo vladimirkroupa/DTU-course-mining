@@ -5,7 +5,7 @@ from storage.course_repository import CourseRepository
 class RepositoryPipeline(object):
 
     def __init__(self):
-        self.repository = CourseRepository()
+        self.repository = CourseRepository('sqlite:///courses.db')
 
     def process_item(self, item, spider):
         if isinstance(item, CourseItem):

@@ -9,7 +9,7 @@ from storage.course_repository import CourseRepository
 class CourseRepositoryTest(unittest.TestCase):
 
     def setUp(self):
-        self.test_object = CourseRepository()
+        self.test_object = CourseRepository('sqlite://')
 
     def tearDown(self):
         self.test_object.clear()

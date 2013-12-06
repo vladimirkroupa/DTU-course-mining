@@ -5,8 +5,8 @@ from sqlalchemy import create_engine, select
 
 class CourseRepository(object):
 
-    def __init__(self):
-        self.db = create_engine('sqlite:///courses.db', echo=False)
+    def __init__(self, sqlite_uri):
+        self.db = create_engine(sqlite_uri, echo=False)
 
         metadata = MetaData()
 
