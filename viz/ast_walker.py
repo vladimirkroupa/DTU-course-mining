@@ -26,19 +26,23 @@ class PydotAstWalker(object):
                 return  Node(self.course_code, fillcolor='red')
             else:
                 return course_root_node
-        root_operator_node = self._visit_node(self.ast)
+        edges = set()
+        root_operator_node = self._visit_node(self.ast, edges)
+        print len(edges)
+        for edge in edges:
+            self.graph.add_edge(edge.to_pydot_edge())
         self.graph.add_node(course_root_node)
         self.graph.add_edge(Edge(course_root_node, root_operator_node))
         return self.graph
 
-    def _visit_node(self, ast_node):
+    def _visit_node(self, ast_node, edges):
         if ast_node.is_course():
             node = Node(ast_node.code)
             self.graph.add_node(node)
             if not ast_node.is_leaf():
-                child = self._visit_node(ast_node.child)
-                edge = Edge(node, child)
-                self.graph.add_edge(edge)
+                child = self._visit_node(ast_node.child, edges)
+                edge = UniqueEdge(node, child)
+                edges.add(edge)
             return node
         elif ast_node.is_operator():
             name = self._name_node(ast_node)
@@ -47,8 +51,30 @@ class PydotAstWalker(object):
             else:
                 this_node = Node(name, label=str(ast_node), shape="diamond")
             self.graph.add_node(this_node)
-            child_nodes = [self._visit_node(child) for child in ast_node.children]
+            child_nodes = [self._visit_node(child, edges) for child in ast_node.children]
             for child in child_nodes:
-                edge = Edge(this_node, child)
-                self.graph.add_edge(edge)
+                edge = UniqueEdge(this_node, child)
+                edges.add(edge)
             return this_node
+
+
+class UniqueEdge(object):
+
+    def to_pydot_edge(self):
+        return Edge(self.src_node, self.dest_node)
+
+    def __init__(self, src_node, dest_node):
+        self.src_node = src_node
+        self.dest_node = dest_node
+
+    def __eq__(self, other):
+        return self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __key(self):
+        return (self.src_node.to_string(), self.dest_node.to_string())
+
+    def __hash__(self):
+        return hash(self.__key())
