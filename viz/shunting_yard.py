@@ -178,10 +178,9 @@ class ShuntingYard(object):
                 raise ValueError('Unmatched token: ' + token)
 
         while len(self.operator_stack) > 0:
-            op = self.operator_stack.pop()
+            op = self.operator_stack[-1]
             if op.is_left_paren() or op.is_right_paren():
                 raise ValueError('Mismatched parentheses.')
-            self.operator_stack.append(op)
             self._pop_onto_output()
 
         return self.output_stack[0]
