@@ -28,7 +28,6 @@ class PydotAstWalker(object):
                 return course_root_node
         edges = set()
         root_operator_node = self._visit_node(self.ast, edges)
-        print len(edges)
         for edge in edges:
             self.graph.add_edge(edge.to_pydot_edge())
         self.graph.add_node(course_root_node)
