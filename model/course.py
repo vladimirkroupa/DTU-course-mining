@@ -33,7 +33,14 @@ class Course:
         def remove_spaces(expr):
             return expr.replace(' ', '')
 
-        return ad_hoc_unmatched_operator_fix(remove_spaces(self.prereq_expr))
+        def remove_front_end_operator(expr):
+            if expr[0] in ('.', '/'):
+                expr = expr[1:]
+            if expr[-1] in ('.', '/'):
+                expr = expr[:-1]
+            return expr
+
+        return ad_hoc_unmatched_operator_fix(remove_front_end_operator(remove_spaces(self.prereq_expr)))
 
     def _prereq_ast(self):
         if self.prereq_expr is None or not self._validate_prereq_expr():
